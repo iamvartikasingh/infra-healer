@@ -1,0 +1,86 @@
+{
+  "finding": {
+    "kind": "CRASH_LOOP",
+    "severity": "CRITICAL",
+    "namespace": "demo",
+    "pod": "demo-service-54f959cf64-rfzxs",
+    "uid": "fa839873-7141-4761-a0a2-d103ea1b8459",
+    "detail": "CrashLoopBackOff after 1 restarts (last exit code 1)",
+    "observed_at": "2026-10-06T03:06:00.688885+00:00",
+    "dedupe_key": "fa839873-7141-4761-a0a2-d103ea1b8459:CRASH_LOOP"
+  },
+  "pod": {
+    "uid": "fa839873-7141-4761-a0a2-d103ea1b8459",
+    "namespace": "demo",
+    "name": "demo-service-54f959cf64-rfzxs",
+    "phase": "Running",
+    "ready": false,
+    "restart_count": 1,
+    "waiting_reason": "CrashLoopBackOff",
+    "last_terminated_reason": "Error",
+    "last_terminated_exit_code": 1,
+    "observed_at": "2026-10-06T03:06:00.701872+00:00",
+    "memory_bytes": null,
+    "cpu_millicores": null
+  },
+  "history": [
+    {
+      "observed_at": "2026-10-06T03:05:56.652592Z",
+      "restart_count": 0,
+      "ready": true,
+      "waiting_reason": null
+    },
+    {
+      "observed_at": "2026-10-06T03:05:58.671551Z",
+      "restart_count": 1,
+      "ready": false,
+      "waiting_reason": null
+    },
+    {
+      "observed_at": "2026-10-06T03:06:00.688885Z",
+      "restart_count": 1,
+      "ready": false,
+      "waiting_reason": "CrashLoopBackOff"
+    }
+  ],
+  "events": [
+    {
+      "type": "Normal",
+      "reason": "Scheduled",
+      "message": "Successfully assigned demo/demo-service-54f959cf64-rfzxs to infra-healer-control-plane",
+      "count": 1
+    },
+    {
+      "type": "Normal",
+      "reason": "Pulled",
+      "message": "Container image \"demo-service:dev\" already present on machine and can be accessed by the pod",
+      "count": 2
+    },
+    {
+      "type": "Normal",
+      "reason": "Created",
+      "message": "Container created",
+      "count": 2
+    },
+    {
+      "type": "Normal",
+      "reason": "Started",
+      "message": "Container started",
+      "count": 2
+    },
+    {
+      "type": "Warning",
+      "reason": "Unhealthy",
+      "message": "Readiness probe failed: Get \"http://10.244.0.11:8080/health\": dial tcp 10.244.0.11:8080: connect: connection refused",
+      "count": 2
+    },
+    {
+      "type": "Warning",
+      "reason": "BackOff",
+      "message": "Back-off restarting failed container demo-service in pod demo-service-54f959cf64-rfzxs_demo(fa839873-7141-4761-a0a2-d103ea1b8459)",
+      "count": 3
+    }
+  ],
+  "log_tail": "2026-10-06 03:05:57,696 ERROR crash marker present at startup; exiting 1 (simulated crash loop)\n",
+  "previous_log_tail": "2026-10-06 03:05:57,696 ERROR crash marker present at startup; exiting 1 (simulated crash loop)\n"
+}
