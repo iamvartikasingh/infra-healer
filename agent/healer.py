@@ -30,7 +30,7 @@ class Healer:
     # --- entry points ----------------------------------------------------
     def open_incident(self, finding: Finding, snapshot: PodSnapshot) -> str | None:
         iid = self.store.create_incident(snapshot.uid, snapshot.namespace, snapshot.name,
-                                         workload_selector(snapshot.labels), finding.kind.value, finding.detail)
+                                         workload_selector(snapshot.labels), finding.kind.value, finding.detail, finding.confidence)
         if iid is None:
             iid = self._maybe_supersede(finding, snapshot)
         if iid is None:
@@ -49,7 +49,8 @@ class Healer:
         except StaleState:
             return None
         return self.store.create_incident(snapshot.uid, snapshot.namespace, snapshot.name,
-                                          workload_selector(snapshot.labels), finding.kind.value, finding.detail)
+                                          workload_selector(snapshot.labels), finding.kind.value, finding.detail,
+                                          finding.confidence)
 
     def run_incident(self, iid: str, finding: Finding, snapshot: PodSnapshot, history=None) -> None:
         """DETECTED -> ... Safe to call from a worker thread; never raises."""
@@ -59,7 +60,8 @@ class Healer:
             result = self._diagnoser.diagnose(ctx)
             diagnosis = result.diagnosis
             decision = evaluate(diagnosis, self._config, self._policy_ctx(iid, predictive=finding.predictive))
-            fields = {"policy_json": _dumps(decision.to_json())}
+            fields = {"policy_json": _dumps({**decision.to_json(), "mode": self._config.mode.value,
+                                             "threshold": self._config.confidence_threshold})}
             if diagnosis:
                 fields["diagnosis_json"] = diagnosis.model_dump_json(by_alias=True)
             self._after_decision(iid, decision, fields, error=result.error)

@@ -41,20 +41,27 @@ class Store:
         self._lock = threading.RLock()
         self._db = sqlite3.connect(path, check_same_thread=False, isolation_level=None)
         self._db.row_factory = sqlite3.Row
+        if path != ":memory:":
+            # The agent and the dashboard share this file from two processes.
+            self._db.execute("PRAGMA journal_mode=WAL")
+            self._db.execute("PRAGMA busy_timeout=5000")
         self._db.executescript(SCHEMA)
+        cols = {r["name"] for r in self._db.execute("PRAGMA table_info(incidents)")}
+        if "finding_confidence" not in cols:  # DB created by an earlier phase
+            self._db.execute("ALTER TABLE incidents ADD COLUMN finding_confidence REAL")
 
     def _now(self) -> str:
         return self._clock().isoformat()
 
     # --- incidents -------------------------------------------------------
-    def create_incident(self, pod_uid, namespace, pod, selector, kind, detail) -> str | None:
+    def create_incident(self, pod_uid, namespace, pod, selector, kind, detail, confidence=None) -> str | None:
         """Returns the new id, or None if this pod already has an open incident."""
         iid, now = uuid.uuid4().hex[:8], self._now()
         with self._lock:
             try:
                 self._db.execute("INSERT INTO incidents(id,pod_uid,namespace,pod,selector,finding_kind,"
-                                 "finding_detail,state,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)",
-                                 (iid, pod_uid, namespace, pod, selector, kind, detail, State.DETECTED.value, now, now))
+                                 "finding_detail,finding_confidence,state,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+                                 (iid, pod_uid, namespace, pod, selector, kind, detail, confidence, State.DETECTED.value, now, now))
             except sqlite3.IntegrityError:
                 return None
             self._db.execute("INSERT INTO events(incident_id,ts,to_state,note) VALUES(?,?,?,?)",
@@ -103,6 +110,14 @@ class Store:
         with self._lock:
             self._db.execute("INSERT INTO events(incident_id,ts,note,data_json) VALUES(?,?,?,?)",
                              (iid, self._now(), note, json.dumps(data) if data else None))
+
+    def events_after(self, seq: int, limit: int = 500) -> list[dict]:
+        with self._lock:
+            return [dict(r) for r in self._db.execute("SELECT * FROM events WHERE seq>? ORDER BY seq LIMIT ?", (seq, limit))]
+
+    def max_seq(self) -> int:
+        with self._lock:
+            return self._db.execute("SELECT COALESCE(MAX(seq),0) FROM events").fetchone()[0]
 
     def events(self, iid: str) -> list[dict]:
         with self._lock:

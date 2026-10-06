@@ -1,7 +1,7 @@
 CLUSTER ?= infra-healer
 NS      ?= demo
 
-.PHONY: preflight cluster build deploy demo-up crash leak metrics leak-slow watch agent-watch agent-run incidents test clean
+.PHONY: preflight cluster build deploy demo-up crash leak metrics leak-slow watch agent-watch agent-run dashboard incidents test clean
 preflight:
 	@for t in docker kind kubectl; do command -v $$t >/dev/null || { echo "missing '$$t' - install it first (e.g. brew install $$t)"; exit 1; }; done
 	@docker info >/dev/null 2>&1 || { echo "Docker daemon is not running"; exit 1; }
@@ -33,6 +33,8 @@ agent-watch:  ## run the watcher against the demo namespace
 	python3 -m agent.monitor.watcher --namespace $(NS) --interval 2
 agent-run:  ## run the full healing loop (MODE=OBSERVE_ONLY|HUMAN_APPROVAL|AUTONOMOUS)
 	python3 -m agent.main run --mode $(or $(MODE),HUMAN_APPROVAL)
+dashboard:  ## live incident dashboard on http://localhost:8000
+	python3 -m dashboard.app
 incidents:
 	python3 -m agent.main list
 clean:

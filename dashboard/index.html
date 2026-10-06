@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>InfraHealer</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb; --surface-2: #f0efec; --border: #dcdbd6;
+  --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #6f6e69;
+  --series-1: #2a78d6;
+  --good: #0ca30c; --warning: #fab219; --serious: #ec835a; --critical: #d03b3b; --progress: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --surface-1: #1a1a19; --surface-2: #2a2a28; --border: #3a3a37;
+    --text-primary: #ffffff; --text-secondary: #c3c2b7; --text-muted: #a3a298;
+    --series-1: #3987e5; --progress: #3987e5;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19; --surface-2: #2a2a28; --border: #3a3a37;
+  --text-primary: #ffffff; --text-secondary: #c3c2b7; --text-muted: #a3a298;
+  --series-1: #3987e5; --progress: #3987e5;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--surface-1); color: var(--text-primary);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 960px; margin: 0 auto; padding: 20px 16px 64px; }
+header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+h1 { font-size: 20px; margin: 0; letter-spacing: -.01em; }
+.live { font-size: 13px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+.live i { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); display: inline-block; }
+.live.on i { background: var(--good); }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 16px 0 20px; }
+.tile { background: var(--surface-2); border-radius: 10px; padding: 12px 14px; }
+.tile b { display: block; font-size: 26px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.tile span { font-size: 13px; color: var(--text-secondary); }
+.card { border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin: 0 0 14px; }
+.card.attn { border-left: 4px solid var(--warning); }
+.top { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.top .pod { font-weight: 600; word-break: break-all; }
+.id { color: var(--text-muted); font: 12px ui-monospace, Menlo, monospace; }
+.badge { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px 2px 8px; border-radius: 999px;
+  border: 1px solid var(--border); font-size: 13px; font-weight: 600; }
+.badge .ic { font-size: 12px; width: 16px; height: 16px; border-radius: 50%; display: inline-grid; place-items: center;
+  color: #0b0b0b; font-weight: 700; }
+.s-good .ic { background: var(--good); } .s-warning .ic { background: var(--warning); }
+.s-serious .ic { background: var(--serious); } .s-critical .ic { background: var(--critical); color: #fff; }
+.s-progress .ic { background: var(--progress); color: #fff; }
+.chip { font-size: 12px; color: var(--text-secondary); border: 1px solid var(--border); border-radius: 6px; padding: 1px 7px; }
+.chip.pred { border-style: dashed; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 24px; margin-top: 12px; }
+@media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-secondary); margin: 0 0 4px; }
+p { margin: 2px 0; } .muted { color: var(--text-secondary); }
+.meter { margin: 6px 0 2px; }
+.meter .track { position: relative; height: 10px; background: var(--surface-2); border-radius: 5px; }
+.meter .fill { position: absolute; inset: 0 auto 0 0; background: var(--series-1); border-radius: 5px 4px 4px 5px; }
+.meter .tick { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--text-primary); }
+.meter .lbl { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary);
+  font-variant-numeric: tabular-nums; margin-top: 3px; }
+.meter .lbl strong { color: var(--text-primary); }
+ol.tl { list-style: none; margin: 8px 0 0; padding: 0; border-left: 2px solid var(--border); }
+ol.tl li { padding: 0 0 8px 12px; position: relative; font-size: 14px; }
+ol.tl li::before { content: ""; position: absolute; left: -6px; top: 7px; width: 10px; height: 10px; border-radius: 50%;
+  background: var(--surface-1); border: 2px solid var(--text-muted); }
+ol.tl time { color: var(--text-muted); font: 12px ui-monospace, Menlo, monospace; margin-right: 6px; }
+ol.tl .st { font-weight: 600; }
+.actions { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
+button { font: inherit; font-weight: 600; padding: 7px 16px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--surface-2); color: var(--text-primary); }
+button.go { background: var(--series-1); border-color: var(--series-1); color: #fff; }
+button:focus-visible { outline: 2px solid var(--series-1); outline-offset: 2px; }
+button:disabled { opacity: .6; cursor: default; }
+.empty { text-align: center; color: var(--text-secondary); padding: 48px 0; border: 1px dashed var(--border); border-radius: 12px; }
+#toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: var(--text-primary);
+  color: var(--surface-1); padding: 8px 14px; border-radius: 8px; font-size: 14px; display: none; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>InfraHealer</h1>
+    <div class="live" id="live" role="status"><i></i><span>connecting…</span></div>
+  </header>
+  <section class="tiles" id="tiles" aria-label="Incident summary"></section>
+  <section id="list" aria-live="polite"></section>
+</main>
+<div id="toast" role="alert"></div>
+<script>
+"use strict";
+// All incident text (root cause, reasoning, notes, log-derived details) is UNTRUSTED.
+// It is only ever inserted with textContent via el(); never as HTML.
+function el(tag, attrs, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === "class") n.className = v;
+    else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+    else n.setAttribute(k, v);
+  }
+  for (const c of kids.flat()) if (c != null) n.append(c.nodeType ? c : document.createTextNode(String(c)));
+  return n;
+}
+const STATE = {
+  RESOLVED:           { s: "good",     icon: "✓", label: "Resolved" },
+  ESCALATED:          { s: "critical", icon: "▲", label: "Needs a human" },
+  REMEDIATION_FAILED: { s: "serious",  icon: "✕", label: "Remediation failed" },
+  ACTION_PROPOSED:    { s: "warning",  icon: "?", label: "Action proposed" },
+  DETECTED:           { s: "progress", icon: "●", label: "Detected" },
+  DIAGNOSING:         { s: "progress", icon: "●", label: "Diagnosing" },
+  REMEDIATING:        { s: "progress", icon: "●", label: "Remediating" },
+  VERIFYING:          { s: "progress", icon: "●", label: "Verifying" },
+};
+const incidents = new Map();
+const pct = x => Math.round(x * 100);
+const t2 = ts => new Date(ts).toLocaleTimeString([], { hour12: false });
+
+function badge(inc) {
+  const d = STATE[inc.state] || { s: "progress", icon: "●", label: inc.state };
+  const waiting = inc.can_decide;
+  const label = waiting ? "Awaiting approval" : d.label;
+  return el("span", { class: "badge s-" + (waiting ? "warning" : d.s) }, el("span", { class: "ic", "aria-hidden": "true" }, waiting ? "?" : d.icon), label);
+}
+function meter(label, value, threshold) {
+  const v = Math.max(0, Math.min(1, Number(value) || 0));
+  const track = el("div", { class: "track" }, el("div", { class: "fill", style: "width:" + pct(v) + "%" }));
+  if (threshold != null) track.append(el("div", { class: "tick", style: "left:calc(" + pct(threshold) + "% - 1px)" }));
+  const m = el("div", { class: "meter", role: "meter", "aria-label": label, "aria-valuemin": "0", "aria-valuemax": "1",
+    "aria-valuenow": v.toFixed(2) }, track,
+    el("div", { class: "lbl" }, el("span", {}, label, " ", el("strong", {}, v.toFixed(2))),
+      threshold != null ? el("span", {}, "act-alone threshold ", threshold.toFixed(2)) : null));
+  return m;
+}
+async function decide(id, verb, btns) {
+  btns.forEach(b => b.disabled = true);
+  try {
+    const r = await fetch("/api/incidents/" + id + "/" + verb, { method: "POST",
+      headers: { "Content-Type": "application/json" }, body: "{}" });
+    if (!r.ok) toast(r.status === 409 ? "Already decided or no longer pending." : "Request failed (" + r.status + ")");
+  } catch (e) { toast("Network error"); }
+  btns.forEach(b => b.disabled = false);
+}
+function card(inc) {
+  const dx = inc.diagnosis, pol = inc.policy, f = inc.finding;
+  const left = el("div", {},
+    el("h3", {}, "What happened"), el("p", {}, f.detail),
+    f.confidence != null ? meter("Prediction confidence", f.confidence) : null);
+  const right = el("div", {});
+  if (dx) {
+    right.append(el("h3", {}, "Diagnosis"),
+      el("p", {}, el("strong", {}, dx.recommendedAction), " — ", dx.rootCause),
+      el("p", { class: "muted" }, dx.reasoning),
+      meter("Diagnosis confidence", dx.confidence, pol && pol.threshold != null ? pol.threshold : null));
+  } else right.append(el("h3", {}, "Diagnosis"), el("p", { class: "muted" }, "No valid diagnosis (yet)."));
+  const polBox = pol ? el("div", {}, el("h3", {}, "Policy decision"),
+    el("p", {}, el("strong", {}, pol.outcome), " · ", pol.rule, pol.mode ? " · " + pol.mode : ""), el("p", { class: "muted" }, pol.reason)) : null;
+  const tl = el("ol", { class: "tl" }, inc.events.map(e =>
+    el("li", {}, el("time", {}, t2(e.ts)), e.to ? el("span", { class: "st" }, e.to + " ") : null, e.note)));
+  const c = el("article", { class: "card" + (inc.can_decide ? " attn" : ""), "data-id": inc.id },
+    el("div", { class: "top" }, el("span", { class: "pod" }, inc.pod), badge(inc),
+      el("span", { class: "chip" + (f.predictive ? " pred" : "") }, (f.predictive ? "predicted · " : "") + f.kind),
+      el("span", { class: "id" }, inc.id)),
+    el("div", { class: "grid" }, left, right), polBox, tl);
+  if (inc.can_decide) {
+    const a = el("button", { class: "go" }, "Approve " + (dx ? dx.recommendedAction : "action"));
+    const r = el("button", {}, "Reject");
+    const btns = [a, r];
+    a.addEventListener("click", () => decide(inc.id, "approve", btns));
+    r.addEventListener("click", () => decide(inc.id, "reject", btns));
+    c.append(el("div", { class: "actions" }, a, r, el("span", { class: "muted" }, "Nothing runs until you decide.")));
+  }
+  return c;
+}
+function render() {
+  const all = [...incidents.values()].sort((a, b) => b.updated_at.localeCompare(a.updated_at));
+  const n = f => all.filter(f).length;
+  const tiles = [["Awaiting approval", n(i => i.can_decide)],
+    ["In progress", n(i => ["DETECTED", "DIAGNOSING", "REMEDIATING", "VERIFYING"].includes(i.state))],
+    ["Resolved", n(i => i.state === "RESOLVED")], ["Needs a human", n(i => i.state === "ESCALATED")]];
+  document.getElementById("tiles").replaceChildren(...tiles.map(([l, v]) => el("div", { class: "tile" }, el("b", {}, v), el("span", {}, l))));
+  document.getElementById("list").replaceChildren(...(all.length ? all.map(card)
+    : [el("div", { class: "empty" }, "No incidents yet. The agent is watching; failures will appear here live.")]));
+}
+let toastT;
+function toast(msg) { const t = document.getElementById("toast"); t.textContent = msg; t.style.display = "block";
+  clearTimeout(toastT); toastT = setTimeout(() => t.style.display = "none", 3500); }
+function live(on) { const l = document.getElementById("live"); l.className = "live" + (on ? " on" : "");
+  l.lastChild.textContent = on ? "live" : "reconnecting…"; }
+async function start() {
+  const r = await fetch("/api/incidents"); const j = await r.json();
+  j.incidents.forEach(i => incidents.set(i.id, i)); render();
+  const es = new EventSource("/stream?since=" + j.seq);   // EventSource resends Last-Event-ID on reconnect
+  es.onopen = () => live(true); es.onerror = () => live(false);
+  es.addEventListener("incident", ev => { const i = JSON.parse(ev.data); incidents.set(i.id, i); render(); });
+}
+start().catch(() => { live(false); toast("Could not load incidents"); });
+</script>
+</body>
+</html>
