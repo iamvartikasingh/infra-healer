@@ -1,7 +1,7 @@
 CLUSTER ?= infra-healer
 NS      ?= demo
 
-.PHONY: preflight cluster build deploy demo-up crash leak watch test clean
+.PHONY: preflight cluster build deploy demo-up crash leak watch agent-watch test clean
 preflight:
 	@for t in docker kind kubectl; do command -v $$t >/dev/null || { echo "missing '$$t' - install it first (e.g. brew install $$t)"; exit 1; }; done
 	@docker info >/dev/null 2>&1 || { echo "Docker daemon is not running"; exit 1; }
@@ -22,5 +22,8 @@ watch:
 	kubectl -n $(NS) get pods -w
 test:
 	cd demo-service && python3 -m pytest -q
+	python3 -m pytest -q
+agent-watch:  ## run the watcher against the demo namespace
+	python3 -m agent.monitor.watcher --namespace $(NS) --interval 2
 clean:
 	kind delete cluster --name $(CLUSTER)
