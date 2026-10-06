@@ -39,6 +39,7 @@ def snapshot_from_pod(pod, now: datetime | None = None) -> PodSnapshot:
         last_terminated_reason=last.reason if last else None,
         last_terminated_exit_code=last.exit_code if last else None,
         observed_at=now or datetime.now(timezone.utc),
+        labels=dict(getattr(pod.metadata, "labels", None) or {}),
     )
 
 
