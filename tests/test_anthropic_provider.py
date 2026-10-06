@@ -59,3 +59,34 @@ def test_missing_credentials_typeerror_becomes_provider_error():
     c, _ = client(TypeError("Could not resolve authentication method"))
     with pytest.raises(ProviderError, match="authentication"):
         AnthropicProvider(client=c, use_fallbacks=False).complete("s", "p")
+
+
+# --- Ollama (free, local) ---
+from agent.diagnose.provider import OllamaProvider  # noqa: E402
+
+
+def test_ollama_sends_schema_and_returns_content():
+    seen = {}
+
+    def post(url, body):
+        seen.update(url=url, body=body)
+        return {"message": {"content": '{"ok":1}'}}
+
+    p = OllamaProvider(model="m", host="http://h:1/", post=post)
+    assert p.complete("sys", "prompt") == '{"ok":1}'
+    assert seen["url"] == "http://h:1/api/chat"
+    assert seen["body"]["format"]["additionalProperties"] is False and seen["body"]["stream"] is False
+    assert [m["role"] for m in seen["body"]["messages"]] == ["system", "user"]
+
+
+@pytest.mark.parametrize("reply", [{}, {"message": {}}, {"message": {"content": ""}}])
+def test_ollama_empty_reply_is_provider_error(reply):
+    with pytest.raises(ProviderError):
+        OllamaProvider(post=lambda u, b: reply).complete("s", "p")
+
+
+def test_ollama_down_is_provider_error():
+    def post(u, b):
+        raise ConnectionRefusedError("refused")
+    with pytest.raises(ProviderError, match="ollama request failed"):
+        OllamaProvider(post=post).complete("s", "p")

@@ -69,3 +69,43 @@ class AnthropicProvider:
         if text is None:
             raise ProviderError("response contained no text block")
         return text
+
+
+class OllamaProvider:
+    """Local, free backend via Ollama's HTTP API (stdlib only).
+
+    Small local models are less reliable than Claude at calibrated confidence and
+    strict JSON, which is exactly why every reply still goes through schema
+    validation and the policy engine."""
+
+    def __init__(self, model: str | None = None, host: str | None = None,
+                 timeout: float = 180.0, post=None):
+        self.model = model or os.getenv("INFRAHEALER_OLLAMA_MODEL", "qwen2.5:7b")
+        self._url = (host or os.getenv("OLLAMA_HOST", "http://localhost:11434")).rstrip("/") + "/api/chat"
+        self._timeout = timeout
+        self._post = post or self._http_post
+
+    def _http_post(self, url: str, body: dict) -> dict:
+        import json
+        import urllib.request
+        req = urllib.request.Request(url, json.dumps(body).encode(),
+                                     {"Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=self._timeout) as r:
+            return json.load(r)
+
+    def complete(self, system: str, prompt: str) -> str:
+        body = {
+            "model": self.model, "stream": False,
+            "format": json_schema(),  # constrains decoding to the schema
+            "options": {"temperature": 0},
+            "messages": [{"role": "system", "content": system},
+                         {"role": "user", "content": prompt}],
+        }
+        try:
+            data = self._post(self._url, body)
+        except Exception as e:  # connection refused, model not pulled (404), timeout...
+            raise ProviderError(f"ollama request failed ({type(e).__name__}): {e}") from e
+        text = (data.get("message") or {}).get("content")
+        if not isinstance(text, str) or not text:
+            raise ProviderError("ollama returned no message content")
+        return text

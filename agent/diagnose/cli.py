@@ -39,7 +39,10 @@ def capture(a) -> int:
 
 def diagnose(a) -> int:
     ctx = IncidentContext.model_validate_json(open(a.fixture).read())
-    if a.provider == "anthropic":
+    if a.provider == "ollama":
+        from agent.diagnose.provider import OllamaProvider
+        provider = OllamaProvider(model=a.model)
+    elif a.provider == "anthropic":
         from agent.diagnose.provider import AnthropicProvider
         provider = AnthropicProvider(model=a.model, use_fallbacks=not a.no_fallbacks)
     else:
@@ -62,7 +65,7 @@ def main() -> None:
     c.set_defaults(fn=capture)
     d = sub.add_parser("diagnose")
     d.add_argument("fixture")
-    d.add_argument("--provider", choices=["fake", "anthropic"], default="fake")
+    d.add_argument("--provider", choices=["fake", "ollama", "anthropic"], default="fake")
     d.add_argument("--model")
     d.add_argument("--no-fallbacks", action="store_true")
     d.set_defaults(fn=diagnose)
