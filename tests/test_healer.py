@@ -184,3 +184,59 @@ def test_rate_limit_stops_runaway_autonomy():
     h._diagnoser = Diagnoser(Scripted(reply(conf=0.95)))
     second = go(h, detect(s2)[0], s2)
     assert state(st, second) == "ACTION_PROPOSED" and st.get(second)["approval"] == "PENDING"
+
+
+# ---------------- predictive incidents ----------------
+from agent.detect.reactive_rules import Finding, FindingKind, Severity  # noqa: E402
+
+
+def predicted(s, conf=0.9):
+    return Finding(FindingKind.PREDICTED_OOM, Severity.WARNING, s.namespace, s.name, s.uid,
+                   "memory rising; limit in ~80s", s.observed_at, f"{s.uid}:PREDICTED_OOM", confidence=conf)
+
+
+def test_autonomous_mode_still_asks_a_human_about_a_prediction():
+    h, api, st, f, s = build([reply(conf=0.99)])
+    iid = go(h, predicted(s), s)
+    inc = st.get(iid)
+    assert inc["state"] == "ACTION_PROPOSED" and inc["approval"] == "PENDING" and api.deleted == []
+    assert json.loads(inc["policy_json"])["rule"] == "PREDICTIVE_NEEDS_HUMAN"
+
+
+def test_approved_prediction_acts():
+    h, api, st, f, s = build([reply(conf=0.99)])
+    iid = go(h, predicted(s), s)
+    st.decide_approval(iid, True)
+    h.process_approvals()
+    assert st.get(iid)["state"] == "RESOLVED" and api.deleted == ["pod-1"]
+
+
+def test_predictive_autonomy_opt_in():
+    h, api, st, f, s = build([reply(conf=0.99)], allow_autonomous_predictive=True)
+    iid = go(h, predicted(s), s)
+    assert st.get(iid)["state"] == "RESOLVED" and api.deleted == ["pod-1"]
+
+
+def test_real_failure_supersedes_a_pending_prediction():
+    h, api, st, f, s = build([reply(conf=0.99), reply(conf=0.95)])
+    first = go(h, predicted(s), s)
+    assert st.get(first)["state"] == "ACTION_PROPOSED"
+    second = go(h, f, s)  # the pod actually fails
+    assert st.get(first)["state"] == "ESCALATED" and "superseded" in st.events(first)[-1]["note"]
+    assert st.get(first)["approval"] == "NONE"  # no dangling approval request on a closed incident
+    assert second and second != first and st.get(second)["state"] == "RESOLVED"
+
+
+def test_prediction_does_not_supersede_a_reactive_incident():
+    h, api, st, f, s = build([reply(conf=0.4)])
+    first = go(h, f, s)
+    assert h.open_incident(predicted(s), s) is None
+    assert st.get(first)["state"] == "ACTION_PROPOSED"
+
+
+def test_reactive_does_not_disturb_an_incident_that_is_already_remediating():
+    h, api, st, f, s = build([reply(conf=0.4)])
+    first = go(h, predicted(s), s)
+    st.decide_approval(first, True)
+    st.transition(first, __import__("agent.state.machine", fromlist=["State"]).State.REMEDIATING)
+    assert h.open_incident(f, s) is None  # leave in-flight work alone

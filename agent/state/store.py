@@ -68,6 +68,12 @@ class Store:
             raise KeyError(iid)
         return dict(row)
 
+    def open_for_pod(self, pod_uid: str) -> dict | None:
+        with self._lock:
+            row = self._db.execute("SELECT * FROM incidents WHERE pod_uid=? AND state NOT IN ('RESOLVED','ESCALATED')",
+                                   (pod_uid,)).fetchone()
+        return dict(row) if row else None
+
     def list_incidents(self, state: State | None = None) -> list[dict]:
         q, args = "SELECT * FROM incidents", ()
         if state:

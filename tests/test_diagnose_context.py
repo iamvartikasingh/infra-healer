@@ -81,4 +81,4 @@ def test_total_api_failure_still_returns_context():
 def test_history_included_and_capped():
     f, s = finding_and_snap()
     ctx = collect_context(Api(), f, s, history=[snap(restart_count=i) for i in range(50)])
-    assert len(ctx.history) == 20 and ctx.history[-1].restart_count == 49
+    assert len(ctx.history) == 40 and ctx.history[-1].restart_count == 49

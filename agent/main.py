@@ -17,6 +17,7 @@ from agent.diagnose.diagnoser import Diagnoser
 from agent.diagnose.fake import FakeProvider
 from agent.diagnose.schema import Action
 from agent.healer import Healer
+from agent.monitor.metrics import MetricsSource
 from agent.monitor.watcher import PodWatcher, _load_kube, snapshot_from_pod
 from agent.policy.engine import Mode, PolicyConfig
 from agent.remediate.executor import Remediator
@@ -39,11 +40,12 @@ def run(a) -> None:
     core, apps = client.CoreV1Api(), client.AppsV1Api()
     store = Store(a.db)
     allowed = frozenset(Action(x) for x in a.allow.split(","))
-    config = PolicyConfig(mode=Mode(a.mode), confidence_threshold=a.threshold, allowed_actions=allowed)
+    config = PolicyConfig(mode=Mode(a.mode), confidence_threshold=a.threshold, allowed_actions=allowed,
+                          allow_autonomous_predictive=a.autonomous_predictive)
     healer = Healer(core, store, Diagnoser(_provider(a.provider, a.model)), config,
                     Remediator(core, apps, store, allowed_actions=allowed),
                     Verifier(core, stabilization_seconds=a.stabilization, timeout_seconds=a.verify_timeout))
-    watcher = PodWatcher(core, a.namespace)
+    watcher = PodWatcher(core, a.namespace, metrics=MetricsSource(client.CustomObjectsApi()))
     pool, stop = ThreadPoolExecutor(max_workers=4), threading.Event()
     logging.info("InfraHealer running: mode=%s threshold=%.2f allowed=%s", config.mode.value,
                  config.confidence_threshold, sorted(x.value for x in allowed))
@@ -78,6 +80,8 @@ def main() -> None:
     r.add_argument("--mode", choices=[m.value for m in Mode], default=Mode.HUMAN_APPROVAL.value)
     r.add_argument("--threshold", type=float, default=0.8)
     r.add_argument("--allow", default="RESTART_POD", help="comma list of whitelisted actions")
+    r.add_argument("--autonomous-predictive", action="store_true",
+                   help="let AUTONOMOUS mode act on predictions without human approval (off by default)")
     r.add_argument("--provider", choices=["fake", "ollama", "anthropic"], default="fake")
     r.add_argument("--model")
     r.add_argument("--interval", type=float, default=3.0)

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import logging
 
-from agent.detect.reactive_rules import Finding
+from agent.detect.reactive_rules import PREDICTIVE_KINDS, Finding, FindingKind
 from agent.diagnose.context import collect_context
 from agent.diagnose.diagnoser import Diagnoser
 from agent.diagnose.schema import Action, Diagnosis
@@ -32,8 +32,24 @@ class Healer:
         iid = self.store.create_incident(snapshot.uid, snapshot.namespace, snapshot.name,
                                          workload_selector(snapshot.labels), finding.kind.value, finding.detail)
         if iid is None:
+            iid = self._maybe_supersede(finding, snapshot)
+        if iid is None:
             log.info("pod %s already has an open incident; ignoring %s", snapshot.name, finding.kind.value)
         return iid
+
+    def _maybe_supersede(self, finding: Finding, snapshot: PodSnapshot) -> str | None:
+        """A real failure outranks a prediction that is still only awaiting a human: close the
+        prediction and open a reactive incident, so the failure isn't ignored behind a stale proposal."""
+        old = self.store.open_for_pod(snapshot.uid)
+        if (old is None or finding.predictive or FindingKind(old["finding_kind"]) not in PREDICTIVE_KINDS
+                or old["state"] != State.ACTION_PROPOSED.value):
+            return None
+        try:
+            self.store.transition(old["id"], State.ESCALATED, f"superseded: {finding.kind.value} actually occurred", approval="NONE")
+        except StaleState:
+            return None
+        return self.store.create_incident(snapshot.uid, snapshot.namespace, snapshot.name,
+                                          workload_selector(snapshot.labels), finding.kind.value, finding.detail)
 
     def run_incident(self, iid: str, finding: Finding, snapshot: PodSnapshot, history=None) -> None:
         """DETECTED -> ... Safe to call from a worker thread; never raises."""
@@ -42,7 +58,7 @@ class Healer:
             ctx = collect_context(self._api, finding, snapshot, history)
             result = self._diagnoser.diagnose(ctx)
             diagnosis = result.diagnosis
-            decision = evaluate(diagnosis, self._config, self._policy_ctx(iid))
+            decision = evaluate(diagnosis, self._config, self._policy_ctx(iid, predictive=finding.predictive))
             fields = {"policy_json": _dumps(decision.to_json())}
             if diagnosis:
                 fields["diagnosis_json"] = diagnosis.model_dump_json(by_alias=True)
@@ -63,7 +79,8 @@ class Healer:
                 diagnosis = Diagnosis.model_validate_json(inc["diagnosis_json"])
                 # Approval is re-checked against policy: it can never bypass the whitelist,
                 # observe-only mode, or the already-attempted guard.
-                decision = evaluate(diagnosis, self._config, self._policy_ctx(iid, human_approved=True))
+                decision = evaluate(diagnosis, self._config, self._policy_ctx(iid, human_approved=True,
+                                                                         predictive=FindingKind(inc["finding_kind"]) in PREDICTIVE_KINDS))
                 if decision.outcome is not Outcome.EXECUTE:
                     self.store.transition(iid, State.ESCALATED, f"approved but policy denies: {decision.rule}")
                     continue
@@ -74,11 +91,11 @@ class Healer:
                 self._fail_safe(iid, f"unexpected error: {type(e).__name__}: {e}")
 
     # --- internals -------------------------------------------------------
-    def _policy_ctx(self, iid: str, human_approved: bool = False) -> PolicyContext:
+    def _policy_ctx(self, iid: str, human_approved: bool = False, predictive: bool = False) -> PolicyContext:
         return PolicyContext(
             attempted_actions=frozenset(Action(a) for a in self.store.attempted_actions(iid)),
             autonomous_in_window=self.store.autonomous_count_since(self._config.window_seconds),
-            human_approved=human_approved)
+            human_approved=human_approved, predictive=predictive)
 
     def _after_decision(self, iid: str, d: PolicyDecision, fields: dict, error: str | None) -> None:
         note = f"policy {d.outcome.value} [{d.rule}]: {d.reason}"

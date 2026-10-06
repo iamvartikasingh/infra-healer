@@ -18,7 +18,9 @@ class PodSnapshot:
     last_terminated_reason: str | None  # e.g. OOMKilled, Error
     last_terminated_exit_code: int | None
     observed_at: datetime
-    # Populated by the metrics layer in Phase 5 (needs metrics-server); None until then.
     labels: dict = field(default_factory=dict, compare=False)
+    # Filled from the Metrics API (needs metrics-server); None when unavailable.
     memory_bytes: int | None = None
     cpu_millicores: int | None = None
+    metrics_timestamp: datetime | None = None  # when the sample was TAKEN (not polled)
+    memory_limit_bytes: int | None = None

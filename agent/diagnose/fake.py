@@ -5,6 +5,8 @@ import json
 _BY_KIND = {
     "CRASH_LOOP": ("Container exits on startup repeatedly; state persisted across container restarts.", 0.85, "RESTART_POD"),
     "OOM_KILLED": ("Container exceeded its memory limit and was OOMKilled.", 0.8, "RESTART_POD"),
+    "PREDICTED_OOM": ("Memory is growing steadily toward the container limit.", 0.75, "RESTART_POD"),
+    "PREDICTED_CRASH_LOOP": ("Restarts are accelerating.", 0.5, "ESCALATE_TO_HUMAN"),
     "RESTART_THRESHOLD": ("Pod restarted repeatedly; cause unclear.", 0.4, "ESCALATE_TO_HUMAN"),
 }
 

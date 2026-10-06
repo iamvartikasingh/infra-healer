@@ -17,7 +17,12 @@ class FindingKind(str, Enum):
     CRASH_LOOP = "CRASH_LOOP"
     OOM_KILLED = "OOM_KILLED"
     RESTART_THRESHOLD = "RESTART_THRESHOLD"
+    # Predictive: the failure has NOT happened yet (see predictive_rules.py)
+    PREDICTED_OOM = "PREDICTED_OOM"
+    PREDICTED_CRASH_LOOP = "PREDICTED_CRASH_LOOP"
 
+
+PREDICTIVE_KINDS = frozenset({FindingKind.PREDICTED_OOM, FindingKind.PREDICTED_CRASH_LOOP})
 
 class Severity(str, Enum):
     WARNING = "WARNING"
@@ -34,6 +39,11 @@ class Finding:
     detail: str
     observed_at: datetime
     dedupe_key: str
+    confidence: float | None = None  # only predictive findings carry one
+
+    @property
+    def predictive(self) -> bool:
+        return self.kind in PREDICTIVE_KINDS
 
 
 def _finding(s: PodSnapshot, kind: FindingKind, sev: Severity, detail: str, key_extra: str = "") -> Finding:

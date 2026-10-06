@@ -7,7 +7,7 @@ from .models import PodSnapshot
 
 
 class MetricsWindow:
-    def __init__(self, size: int = 60):
+    def __init__(self, size: int = 200):
         self._size = size
         self._by_uid: dict[str, deque[PodSnapshot]] = {}
 

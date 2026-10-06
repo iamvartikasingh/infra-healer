@@ -148,6 +148,35 @@ def test_threshold_of_exactly_one_is_allowed():
     assert evaluate(dx(conf=1.0), cfg(confidence_threshold=1.0)).outcome is Outcome.EXECUTE
 
 
+# ---------------- predictive incidents ----------------
+def test_predictive_incident_cannot_run_autonomously_by_default():
+    d = evaluate(dx(conf=1.0), cfg(), PolicyContext(predictive=True))
+    assert (d.outcome, d.rule) == (Outcome.REQUIRE_APPROVAL, "PREDICTIVE_NEEDS_HUMAN")
+
+
+def test_predictive_autonomy_requires_explicit_opt_in_and_still_needs_confidence():
+    c = cfg(allow_autonomous_predictive=True)
+    assert evaluate(dx(conf=0.9), c, PolicyContext(predictive=True)).outcome is Outcome.EXECUTE
+    assert evaluate(dx(conf=0.5), c, PolicyContext(predictive=True)).rule == "LOW_CONFIDENCE"
+
+
+def test_human_can_approve_a_predictive_action():
+    d = evaluate(dx(conf=0.5), cfg(), PolicyContext(predictive=True, human_approved=True))
+    assert d.outcome is Outcome.EXECUTE
+
+
+def test_predictive_does_not_loosen_any_other_rule():
+    c = cfg(allow_autonomous_predictive=True)
+    assert evaluate(dx(Action.ROLLBACK), c, PolicyContext(predictive=True)).rule == "NOT_WHITELISTED"
+    assert evaluate(dx(), cfg(Mode.OBSERVE_ONLY, allow_autonomous_predictive=True), PolicyContext(predictive=True)).rule == "OBSERVE_ONLY"
+
+
+@pytest.mark.parametrize("v", [1, "yes", None])
+def test_allow_autonomous_predictive_must_be_a_bool(v):
+    with pytest.raises(ValueError):
+        PolicyConfig(allow_autonomous_predictive=v)
+
+
 # ---------------- exhaustive invariant sweep ----------------
 ACTIONS = list(Action)
 CONFS = [0.0, 0.1, 0.5, 0.79, 0.8, 0.81, 0.99, 1.0]
@@ -157,25 +186,28 @@ ATTEMPTED = [frozenset(), frozenset({Action.RESTART_POD}), frozenset(EXECUTABLE)
 
 def test_exhaustive_safety_invariants():
     n = 0
-    for mode, action, conf, wl, attempted, in_window, approved in itertools.product(
-            Mode, ACTIONS, CONFS, WHITELISTS, ATTEMPTED, [0, 2, 3, 10], [False, True]):
-        c = PolicyConfig(mode=mode, confidence_threshold=0.8, allowed_actions=wl, max_autonomous_per_window=3)
-        ctx = PolicyContext(attempted_actions=attempted, autonomous_in_window=in_window, human_approved=approved)
+    for mode, action, conf, wl, attempted, in_window, approved, predictive, allow_pred in itertools.product(
+            Mode, ACTIONS, CONFS, WHITELISTS, ATTEMPTED, [0, 2, 3, 10], [False, True], [False, True], [False, True]):
+        c = PolicyConfig(mode=mode, confidence_threshold=0.8, allowed_actions=wl, max_autonomous_per_window=3,
+                         allow_autonomous_predictive=allow_pred)
+        ctx = PolicyContext(attempted_actions=attempted, autonomous_in_window=in_window, human_approved=approved,
+                            predictive=predictive)
         d = evaluate(dx(action, conf), c, ctx)
         n += 1
         if d.outcome is Outcome.EXECUTE:
-            where = (mode, action, conf, wl, attempted, in_window, approved)
+            where = (mode, action, conf, wl, attempted, in_window, approved, predictive, allow_pred)
             assert action in EXECUTABLE, where           # advisory actions never run
             assert action in wl, where                   # whitelist is absolute
             assert mode is not Mode.OBSERVE_ONLY, where  # observe-only never runs anything
             assert action not in attempted, where        # never repeat an action for an incident
             # and it got there only via an explicit road:
-            assert approved or (mode is Mode.AUTONOMOUS and conf >= 0.8 and in_window < 3), where
+            assert approved or (mode is Mode.AUTONOMOUS and conf >= 0.8 and in_window < 3
+                                and (allow_pred or not predictive)), where  # predictions never run unattended by default
         if d.outcome is Outcome.REQUIRE_APPROVAL:
             assert action in EXECUTABLE and action in wl and mode is not Mode.OBSERVE_ONLY
             assert not approved
         assert d.rule and d.reason  # every decision explains itself
-    assert n == 3 * 5 * 8 * 4 * 3 * 4 * 2
+    assert n == 3 * 5 * 8 * 4 * 3 * 4 * 2 * 2 * 2
 
 
 def test_evaluate_is_deterministic_and_does_not_mutate_inputs():

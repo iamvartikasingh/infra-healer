@@ -42,6 +42,8 @@ class PolicyConfig:
     allowed_actions: frozenset = frozenset({Action.RESTART_POD})  # least privilege by default
     max_autonomous_per_window: int = 3  # blast-radius circuit breaker
     window_seconds: float = 3600.0
+    # Acting on a pod that has not failed yet is riskier than reacting to one that has.
+    allow_autonomous_predictive: bool = False
 
     def __post_init__(self):
         # Misconfiguration must fail at startup, never silently loosen the boundary.
@@ -56,6 +58,8 @@ class PolicyConfig:
         if not allowed <= EXECUTABLE:
             raise ValueError(f"allowed_actions may only contain executable actions, got {sorted(map(str, allowed - EXECUTABLE))}")
         object.__setattr__(self, "allowed_actions", allowed)
+        if not isinstance(self.allow_autonomous_predictive, bool):
+            raise ValueError("allow_autonomous_predictive must be a bool")
         if not isinstance(self.max_autonomous_per_window, int) or self.max_autonomous_per_window < 0:
             raise ValueError("max_autonomous_per_window must be an int >= 0")
 
@@ -66,6 +70,7 @@ class PolicyContext:
     attempted_actions: frozenset = frozenset()  # actions already claimed for this incident
     autonomous_in_window: int = 0               # autonomous executions in the rate window
     human_approved: bool = False                # a human approved THIS proposal
+    predictive: bool = False                    # incident came from a prediction, not an observed failure
 
 
 @dataclass(frozen=True)
@@ -114,6 +119,9 @@ def evaluate(diagnosis: Diagnosis | None, config: PolicyConfig,
     if config.mode is Mode.HUMAN_APPROVAL:
         return decide(Outcome.REQUIRE_APPROVAL, "APPROVAL_REQUIRED", "human-approval mode: every action needs sign-off")
     if config.mode is Mode.AUTONOMOUS:
+        if ctx.predictive and not config.allow_autonomous_predictive:
+            return decide(Outcome.REQUIRE_APPROVAL, "PREDICTIVE_NEEDS_HUMAN",
+                          "predicted (not yet observed) failure: a human must approve acting early")
         if conf < config.confidence_threshold:
             return decide(Outcome.REQUIRE_APPROVAL, "LOW_CONFIDENCE",
                           f"confidence {conf:.2f} below threshold {config.confidence_threshold:.2f}")

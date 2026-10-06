@@ -30,6 +30,8 @@ class HistoryPoint(BaseModel):
     restart_count: int
     ready: bool
     waiting_reason: str | None = None
+    memory_bytes: int | None = None
+    metrics_timestamp: datetime | None = None
 
 
 class IncidentContext(BaseModel):
@@ -81,7 +83,8 @@ def collect_context(core_api, finding: Finding, snapshot: PodSnapshot,
         finding=_jsonable(finding),
         pod=_jsonable(snapshot),
         history=[HistoryPoint(observed_at=h.observed_at, restart_count=h.restart_count,
-                              ready=h.ready, waiting_reason=h.waiting_reason) for h in (history or [])[-20:]],
+                              ready=h.ready, waiting_reason=h.waiting_reason,
+                              memory_bytes=h.memory_bytes, metrics_timestamp=h.metrics_timestamp) for h in (history or [])[-40:]],
         events=events,
         log_tail=logs(False),
         previous_log_tail=logs(True) if snapshot.restart_count > 0 else "",

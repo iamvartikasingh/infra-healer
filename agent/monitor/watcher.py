@@ -14,14 +14,30 @@ from typing import Callable
 
 from kubernetes import client, config
 
-from agent.detect.reactive_rules import Finding, evaluate
+from kubernetes.utils import parse_quantity
+
+from agent.detect.predictive_rules import PredictiveConfig, evaluate_predictive
+from agent.detect.reactive_rules import Finding, Severity, evaluate
+from agent.monitor.metrics import MetricsSource, PodMetrics
 from agent.monitor.models import PodSnapshot
 from agent.monitor.window import MetricsWindow
 
 log = logging.getLogger("watcher")
 
 
-def snapshot_from_pod(pod, now: datetime | None = None) -> PodSnapshot:
+def _memory_limit(pod) -> int | None:
+    """Sum of container memory limits; None if any container is unlimited (no meaningful ceiling)."""
+    containers = getattr(getattr(pod, "spec", None), "containers", None) or []
+    total = 0
+    for c in containers:
+        lim = ((getattr(c, "resources", None) and c.resources.limits) or {}).get("memory")
+        if not lim:
+            return None
+        total += int(parse_quantity(lim))
+    return total or None
+
+
+def snapshot_from_pod(pod, now: datetime | None = None, metrics: PodMetrics | None = None) -> PodSnapshot:
     """Flatten a V1Pod into a PodSnapshot. Uses the worst-off container."""
     statuses = pod.status.container_statuses or []
     waiting = next((cs.state.waiting.reason for cs in statuses
@@ -40,19 +56,26 @@ def snapshot_from_pod(pod, now: datetime | None = None) -> PodSnapshot:
         last_terminated_exit_code=last.exit_code if last else None,
         observed_at=now or datetime.now(timezone.utc),
         labels=dict(getattr(pod.metadata, "labels", None) or {}),
+        memory_bytes=metrics.memory_bytes if metrics else None,
+        cpu_millicores=metrics.cpu_millicores if metrics else None,
+        metrics_timestamp=metrics.timestamp if metrics else None,
+        memory_limit_bytes=_memory_limit(pod),
     )
 
 
 class PodWatcher:
     def __init__(self, core_api, namespace: str, label_selector: str | None = None,
                  restart_threshold: int = 3, clear_after_seconds: float = 30.0,
-                 window: MetricsWindow | None = None,
+                 window: MetricsWindow | None = None, metrics: MetricsSource | None = None,
+                 predictive: PredictiveConfig | None = None,
                  clock: Callable[[], datetime] | None = None):
         self._api = core_api
         self._ns = namespace
         self._selector = label_selector
         self._threshold = restart_threshold
         self.window = window or MetricsWindow()
+        self._metrics = metrics
+        self._predictive = predictive or PredictiveConfig(restart_threshold=restart_threshold)
         self._clock = clock or (lambda: datetime.now(timezone.utc))
         self._clear_after = clear_after_seconds
         # dedupe key -> last time the condition was seen. A key stays "active"
@@ -65,14 +88,20 @@ class PodWatcher:
         """Return findings that are NEW since the last poll (rising edge only)."""
         pods = self._api.list_namespaced_pod(self._ns, label_selector=self._selector).items
         now = self._clock()
+        by_name = self._metrics.fetch(self._ns) if self._metrics else {}
         current: dict[str, Finding] = {}
         live: set[str] = set()
         for pod in pods:
-            snap = snapshot_from_pod(pod, now)
+            snap = snapshot_from_pod(pod, now, by_name.get(pod.metadata.name))
             live.add(snap.uid)
             self.window.add(snap)
-            for f in evaluate(snap, self._threshold):
+            reactive = evaluate(snap, self._threshold)
+            for f in reactive:
                 current[f.dedupe_key] = f
+            # A pod that is already failing is the reactive rules' business; don't also "predict" it.
+            if not any(f.severity is Severity.CRITICAL for f in reactive):
+                for f in evaluate_predictive(self.window.history(snap.uid), self._predictive):
+                    current[f.dedupe_key] = f
         self.window.prune(live)
         new = [f for k, f in current.items() if k not in self._last_seen]
         for k in current:
