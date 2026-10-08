@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: infra-healer-demo
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements-render.txt
+    startCommand: gunicorn 'dashboard.demo:create_app()' --bind 0.0.0.0:$PORT --workers 1 --threads 4
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: SECRET_KEY
+        generateValue: true

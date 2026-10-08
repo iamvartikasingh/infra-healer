@@ -102,6 +102,14 @@ def create_app(store: Store, allowed_hosts: frozenset[str] = DEFAULT_HOSTS) -> F
     def index():
         return send_file(INDEX, mimetype="text/html")
 
+    @app.get("/health")
+    def health():
+        return jsonify(status="ok")
+
+    @app.get("/api/config")
+    def config():
+        return jsonify(demo=app.config.get("DEMO", False))
+
     @app.get("/api/incidents")
     def incidents():
         seq = store.max_seq()  # read BEFORE the rows so the stream can only replay, never skip

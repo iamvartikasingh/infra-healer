@@ -1,5 +1,9 @@
 CLUSTER ?= infra-healer
 NS      ?= demo
+PYTHON  ?= python3
+MODE    ?= HUMAN_APPROVAL
+PROVIDER ?= fake
+DB      ?= infra-healer.db
 
 .PHONY: preflight cluster build deploy demo-up crash leak metrics leak-slow watch agent-watch agent-run dashboard incidents test clean
 preflight:
@@ -27,15 +31,15 @@ leak:     ## ~10MB per call until OOMKilled (64Mi limit)
 watch:
 	kubectl -n $(NS) get pods -w
 test:
-	cd demo-service && python3 -m pytest -q
-	python3 -m pytest -q
+	cd demo-service && $(PYTHON) -m pytest -q
+	$(PYTHON) -m pytest -q
 agent-watch:  ## run the watcher against the demo namespace
-	python3 -m agent.monitor.watcher --namespace $(NS) --interval 2
+	$(PYTHON) -m agent.monitor.watcher --namespace $(NS) --interval 2
 agent-run:  ## run the full healing loop (MODE=OBSERVE_ONLY|HUMAN_APPROVAL|AUTONOMOUS)
-	python3 -m agent.main run --mode $(or $(MODE),HUMAN_APPROVAL)
+	$(PYTHON) -m agent.main --db $(DB) run --namespace $(NS) --mode $(MODE) --provider $(PROVIDER)
 dashboard:  ## live incident dashboard on http://localhost:8000
-	python3 -m dashboard.app
+	$(PYTHON) -m dashboard.app --db $(DB)
 incidents:
-	python3 -m agent.main list
+	$(PYTHON) -m agent.main --db $(DB) list
 clean:
 	kind delete cluster --name $(CLUSTER)

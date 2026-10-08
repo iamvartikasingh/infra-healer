@@ -2,3 +2,4 @@ kubernetes==36.0.3
 anthropic>=1.11
 pydantic>=2.13
 pytest>=8
+-r demo-service/requirements.txt

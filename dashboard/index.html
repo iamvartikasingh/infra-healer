@@ -87,6 +87,17 @@ button:disabled { opacity: .6; cursor: default; }
     <h1>InfraHealer</h1>
     <div class="live" id="live" role="status"><i></i><span>connecting…</span></div>
   </header>
+  <section id="demo" class="card" hidden>
+    <h2>Try InfraHealer</h2>
+    <p>This is an interactive simulation. Diagnoses and recovery are scripted; no Kubernetes cluster or AI API is connected.</p>
+    <p class="muted">1. Choose a failure. 2. Review the proposal. 3. Approve or reject it and watch the timeline. Your demo is isolated to this browser and resets when the server restarts.</p>
+    <div class="actions">
+      <button data-scenario="CRASH_LOOP">Simulate crash loop</button>
+      <button data-scenario="OOM_KILLED">Simulate out of memory</button>
+      <button data-scenario="PREDICTED_OOM">Simulate memory warning</button>
+      <button id="reset-demo">Reset demo</button>
+    </div>
+  </section>
   <section class="tiles" id="tiles" aria-label="Incident summary"></section>
   <section id="list" aria-live="polite"></section>
 </main>
@@ -116,6 +127,7 @@ const STATE = {
   VERIFYING:          { s: "progress", icon: "●", label: "Verifying" },
 };
 const incidents = new Map();
+let demoMode = false;
 const pct = x => Math.round(x * 100);
 const t2 = ts => new Date(ts).toLocaleTimeString([], { hour12: false });
 
@@ -183,7 +195,7 @@ function render() {
     ["Resolved", n(i => i.state === "RESOLVED")], ["Needs a human", n(i => i.state === "ESCALATED")]];
   document.getElementById("tiles").replaceChildren(...tiles.map(([l, v]) => el("div", { class: "tile" }, el("b", {}, v), el("span", {}, l))));
   document.getElementById("list").replaceChildren(...(all.length ? all.map(card)
-    : [el("div", { class: "empty" }, "No incidents yet. The agent is watching; failures will appear here live.")]));
+    : [el("div", { class: "empty" }, demoMode ? "Choose a simulated failure above to start." : "No incidents yet. The agent is watching; failures will appear here live.")]));
 }
 let toastT;
 function toast(msg) { const t = document.getElementById("toast"); t.textContent = msg; t.style.display = "block";
@@ -191,6 +203,33 @@ function toast(msg) { const t = document.getElementById("toast"); t.textContent 
 function live(on) { const l = document.getElementById("live"); l.className = "live" + (on ? " on" : "");
   l.lastChild.textContent = on ? "live" : "reconnecting…"; }
 async function start() {
+  demoMode = (await (await fetch("/api/config")).json()).demo;
+  if (demoMode) {
+    document.getElementById("demo").hidden = false;
+    const refresh = async () => {
+      const r = await fetch("/api/incidents");
+      if (!r.ok) throw new Error("Could not load demo");
+      const j = await r.json(); incidents.clear();
+      j.incidents.forEach(i => incidents.set(i.id, i)); render(); live(true);
+      document.querySelector("#live span").textContent = "simulation";
+    };
+    const post = async (url, body, button) => {
+      button.disabled = true;
+      try {
+        const r = await fetch(url, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+        if (!r.ok) { const j = await r.json(); toast(j.error || "Request failed"); }
+        await refresh();
+      } catch (e) { toast("Network error. Please try again."); }
+      finally { button.disabled = false; }
+    };
+    document.querySelectorAll("[data-scenario]").forEach(b => b.addEventListener("click", () => post("/api/demo/incidents", {kind: b.dataset.scenario}, b)));
+    const reset = document.getElementById("reset-demo");
+    reset.addEventListener("click", () => post("/api/demo/reset", {}, reset));
+    await refresh();
+    const poll = async () => { try { await refresh(); } catch (e) { live(false); } setTimeout(poll, 2000); };
+    setTimeout(poll, 2000);
+    return;
+  }
   const r = await fetch("/api/incidents"); const j = await r.json();
   j.incidents.forEach(i => incidents.set(i.id, i)); render();
   const es = new EventSource("/stream?since=" + j.seq);   // EventSource resends Last-Event-ID on reconnect
