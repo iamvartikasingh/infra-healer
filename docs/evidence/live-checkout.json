@@ -1,0 +1,145 @@
+{
+  "source": "Real HTTP experiment under Gunicorn; deterministic diagnosis; no Kubernetes",
+  "experiment": {
+    "elapsed_seconds": 16.3,
+    "events": [
+      {
+        "message": "Checkout HTTP worker started (process 98322)",
+        "ts": "2026-10-08T05:21:08.675117+00:00"
+      },
+      {
+        "message": "Injected errors into this checkout worker only",
+        "ts": "2026-10-08T05:21:12.714457+00:00"
+      },
+      {
+        "message": "Request breaches detected; restart proposed for human approval",
+        "ts": "2026-10-08T05:21:15.738373+00:00"
+      },
+      {
+        "message": "Checkout HTTP worker started (process 98375)",
+        "ts": "2026-10-08T05:21:17.825835+00:00"
+      },
+      {
+        "message": "Recovery verified by three successful checkout requests",
+        "ts": "2026-10-08T05:21:19.845944+00:00"
+      }
+    ],
+    "healthy_rate": 70.6,
+    "id": "e9eb56260c4dd0cf",
+    "incident_id": "5b064fb1",
+    "kind": "errors",
+    "phase": "COMPLETE",
+    "samples": [
+      {
+        "latency_ms": 4.08,
+        "pid": 98322,
+        "status": 200,
+        "ts": "2026-10-08T05:21:08.679212+00:00"
+      },
+      {
+        "latency_ms": 1.67,
+        "pid": 98322,
+        "status": 200,
+        "ts": "2026-10-08T05:21:09.686746+00:00"
+      },
+      {
+        "latency_ms": 0.72,
+        "pid": 98322,
+        "status": 200,
+        "ts": "2026-10-08T05:21:10.693296+00:00"
+      },
+      {
+        "latency_ms": 2.22,
+        "pid": 98322,
+        "status": 200,
+        "ts": "2026-10-08T05:21:11.701648+00:00"
+      },
+      {
+        "latency_ms": 4.04,
+        "pid": 98322,
+        "status": 200,
+        "ts": "2026-10-08T05:21:12.710147+00:00"
+      },
+      {
+        "latency_ms": 2.3,
+        "pid": 98322,
+        "status": 503,
+        "ts": "2026-10-08T05:21:13.724046+00:00"
+      },
+      {
+        "latency_ms": 1.72,
+        "pid": 98322,
+        "status": 503,
+        "ts": "2026-10-08T05:21:14.727980+00:00"
+      },
+      {
+        "latency_ms": 1.9,
+        "pid": 98322,
+        "status": 503,
+        "ts": "2026-10-08T05:21:15.737615+00:00"
+      },
+      {
+        "latency_ms": 1.21,
+        "pid": 98322,
+        "status": 503,
+        "ts": "2026-10-08T05:21:16.749644+00:00"
+      },
+      {
+        "latency_ms": 1.13,
+        "pid": 98322,
+        "status": 503,
+        "ts": "2026-10-08T05:21:17.759560+00:00"
+      },
+      {
+        "latency_ms": 0.89,
+        "pid": 98375,
+        "status": 200,
+        "ts": "2026-10-08T05:21:17.827032+00:00"
+      },
+      {
+        "latency_ms": 1.54,
+        "pid": 98375,
+        "status": 200,
+        "ts": "2026-10-08T05:21:18.834912+00:00"
+      },
+      {
+        "latency_ms": 0.78,
+        "pid": 98375,
+        "status": 200,
+        "ts": "2026-10-08T05:21:19.845810+00:00"
+      },
+      {
+        "latency_ms": 1.63,
+        "pid": 98375,
+        "status": 200,
+        "ts": "2026-10-08T05:21:20.857609+00:00"
+      },
+      {
+        "latency_ms": 2.39,
+        "pid": 98375,
+        "status": 200,
+        "ts": "2026-10-08T05:21:21.868387+00:00"
+      },
+      {
+        "latency_ms": 1.78,
+        "pid": 98375,
+        "status": 200,
+        "ts": "2026-10-08T05:21:22.875858+00:00"
+      },
+      {
+        "latency_ms": 2.69,
+        "pid": 98375,
+        "status": 200,
+        "ts": "2026-10-08T05:21:23.887681+00:00"
+      }
+    ],
+    "success_rate": 70.6,
+    "timings": {
+      "approval_at_seconds": 9.13,
+      "detection_seconds": 3.03,
+      "fault_at_seconds": 4.08,
+      "recovery_seconds": 2.08
+    },
+    "worker_pid": null
+  }
+}

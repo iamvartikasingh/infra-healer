@@ -68,8 +68,10 @@ class PodWatcher:
                  restart_threshold: int = 3, clear_after_seconds: float = 30.0,
                  window: MetricsWindow | None = None, metrics: MetricsSource | None = None,
                  predictive: PredictiveConfig | None = None,
-                 clock: Callable[[], datetime] | None = None):
+                 clock: Callable[[], datetime] | None = None,
+                 on_snapshot: Callable[[PodSnapshot], None] | None = None):
         self._api = core_api
+        self._on_snapshot = on_snapshot
         self._ns = namespace
         self._selector = label_selector
         self._threshold = restart_threshold
@@ -95,6 +97,8 @@ class PodWatcher:
             snap = snapshot_from_pod(pod, now, by_name.get(pod.metadata.name))
             live.add(snap.uid)
             self.window.add(snap)
+            if self._on_snapshot:
+                self._on_snapshot(snap)
             reactive = evaluate(snap, self._threshold)
             for f in reactive:
                 current[f.dedupe_key] = f

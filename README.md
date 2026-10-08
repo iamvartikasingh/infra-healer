@@ -6,7 +6,9 @@ InfraHealer detects pod failures and early warning signals, gathers incident evi
 
 Built with Python, Kubernetes, Pydantic, SQLite, and Flask. Runs locally against a kind cluster; the default diagnosis provider needs no API key.
 
-**Public demo deployment:** [Deploy the interactive simulation on Render](docs/render.md). Visitors can trigger scripted incidents, approve or reject actions, and follow recovery without a Kubernetes cluster or API key.
+**Public live lab:** [Deploy on Render](docs/render.md). Visitors can inject bounded errors or latency into a real checkout HTTP worker, inspect measured requests, approve a process restart, and verify recovery. No Kubernetes cluster or AI API key is required for the hosted lab; diagnosis uses deterministic rules.
+
+**Real cluster walkthrough:** [Predict a memory leak and verify recovery](docs/real-demo.md), with live telemetry, captured logs/events, and exportable incident evidence.
 
 ## See the flow
 
@@ -44,7 +46,7 @@ python -m pip install -r requirements.txt
 make test PYTHON=python
 ```
 
-Tests use local fakes and require no cluster or model credentials. To try diagnosis alone:
+Tests require no Kubernetes cluster or model credentials. The live lab integration tests start disposable HTTP subprocesses and use loopback sockets; the Kubernetes tests use local fakes. To try diagnosis alone:
 
 ```bash
 python -m agent.diagnose.cli diagnose tests/fixtures/incidents/crashloop.json --provider fake

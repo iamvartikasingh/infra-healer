@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import dataclasses
 import sqlite3
 import threading
 import uuid
@@ -27,8 +28,13 @@ CREATE TABLE IF NOT EXISTS executions (
   incident_id TEXT NOT NULL, action TEXT NOT NULL, initiator TEXT NOT NULL,
   status TEXT NOT NULL, detail TEXT NOT NULL DEFAULT '', ts TEXT NOT NULL,
   PRIMARY KEY (incident_id, action));
+CREATE TABLE IF NOT EXISTS observations (
+  seq INTEGER PRIMARY KEY AUTOINCREMENT, pod_uid TEXT NOT NULL,
+  namespace TEXT NOT NULL, selector TEXT NOT NULL, observed_at TEXT NOT NULL,
+  snapshot_json TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS observation_workload ON observations(namespace, selector, seq);
 """
-_FIELDS = {"diagnosis_json", "policy_json", "approval"}
+_FIELDS = {"diagnosis_json", "policy_json", "approval", "context_json"}
 
 
 class StaleState(Exception):
@@ -49,6 +55,31 @@ class Store:
         cols = {r["name"] for r in self._db.execute("PRAGMA table_info(incidents)")}
         if "finding_confidence" not in cols:  # DB created by an earlier phase
             self._db.execute("ALTER TABLE incidents ADD COLUMN finding_confidence REAL")
+        if "context_json" not in cols:
+            self._db.execute("ALTER TABLE incidents ADD COLUMN context_json TEXT")
+
+    def record_snapshot(self, snapshot, selector: str) -> None:
+        """Retain recent observations across replacements, capped at 20,000 rows globally."""
+        payload = json.dumps(dataclasses.asdict(snapshot), default=lambda v: v.isoformat())
+        with self._lock:
+            self._db.execute("INSERT INTO observations(pod_uid,namespace,selector,observed_at,snapshot_json) VALUES(?,?,?,?,?)",
+                             (snapshot.uid, snapshot.namespace, selector, snapshot.observed_at.isoformat(), payload))
+            self._db.execute("DELETE FROM observations WHERE seq <= (SELECT COALESCE(MAX(seq),0)-20000 FROM observations)")
+
+    def observations(self, namespace: str, selector: str, limit: int = 200) -> list[dict]:
+        with self._lock:
+            rows = self._db.execute("SELECT snapshot_json FROM observations WHERE namespace=? AND selector=? ORDER BY seq DESC LIMIT ?",
+                                    (namespace, selector, min(1000, max(1, limit)))).fetchall()
+        return [json.loads(r[0]) for r in reversed(rows)]
+
+    def workloads(self) -> list[dict]:
+        with self._lock:
+            return [dict(r) for r in self._db.execute(
+                "SELECT namespace,selector,MAX(observed_at) AS last_seen FROM observations GROUP BY namespace,selector ORDER BY last_seen DESC LIMIT 20")]
+
+    def close(self) -> None:
+        with self._lock:
+            self._db.close()
 
     def _now(self) -> str:
         return self._clock().isoformat()

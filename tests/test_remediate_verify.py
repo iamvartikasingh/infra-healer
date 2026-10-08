@@ -22,7 +22,8 @@ class Core:
             raise ApiException(status=404)
         return NS(metadata=NS(uid=self.uid, name=name, owner_references=[own("ReplicaSet", "rs1")]))
 
-    def delete_namespaced_pod(self, name, ns):
+    def delete_namespaced_pod(self, name, ns, body=None):
+        self.delete_options = body
         self.deleted.append(name)
 
 
@@ -68,6 +69,7 @@ def test_restart_deletes_pod():
     _, iid, r = setup(core)
     res = run(r, iid)
     assert res.status is ExecStatus.EXECUTED and core.deleted == ["pod1"]
+    assert core.delete_options.preconditions.uid == "u1"
 
 
 def test_same_action_never_runs_twice_for_one_incident():
@@ -83,6 +85,17 @@ def test_restart_never_deletes_a_replacement_pod():
     _, iid, r = setup(core)
     res = run(r, iid)
     assert core.deleted == [] and "already replaced" in res.detail
+
+
+def test_replacement_between_read_and_delete_fails_closed():
+    class Replaced(Core):
+        def delete_namespaced_pod(self, name, ns, body=None):
+            assert body.preconditions.uid == "u1"
+            raise ApiException(status=409, reason="UID precondition failed")
+    core = Replaced()
+    _, iid, r = setup(core)
+    assert run(r, iid).status is ExecStatus.FAILED
+    assert core.deleted == []
 
 
 def test_restart_of_missing_pod_is_a_noop():
@@ -105,7 +118,7 @@ def test_advisory_actions_refused(a):
 
 def test_k8s_error_is_reported_not_raised_and_still_claims():
     class Boom(Core):
-        def delete_namespaced_pod(self, *a):
+        def delete_namespaced_pod(self, *a, **kw):
             raise ApiException(status=500, reason="boom")
     st, iid, r = setup(Boom())
     res = run(r, iid)

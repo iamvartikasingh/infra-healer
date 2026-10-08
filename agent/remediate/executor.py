@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from kubernetes.client.rest import ApiException
+from kubernetes.client import V1DeleteOptions, V1Preconditions
 
 from agent.diagnose.schema import Action
 from agent.policy.engine import EXECUTABLE
@@ -64,7 +65,7 @@ class Remediator:
             raise
         if pod.metadata.uid != uid:  # never delete a replacement that merely reuses the name
             return f"pod {name} was already replaced (uid changed); nothing to delete"
-        self._core.delete_namespaced_pod(name, ns)
+        self._core.delete_namespaced_pod(name, ns, body=V1DeleteOptions(preconditions=V1Preconditions(uid=uid)))
         return f"deleted pod {name}; its controller will recreate it"
 
     def _owner_deployment(self, ns: str, name: str) -> str:

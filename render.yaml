@@ -4,7 +4,7 @@ services:
     runtime: python
     plan: free
     buildCommand: pip install -r requirements-render.txt
-    startCommand: gunicorn 'dashboard.demo:create_app()' --bind 0.0.0.0:$PORT --workers 1 --threads 4
+    startCommand: gunicorn 'dashboard.live:create_app()' --bind 0.0.0.0:$PORT --workers 1 --threads 4
     healthCheckPath: /health
     envVars:
       - key: PYTHON_VERSION

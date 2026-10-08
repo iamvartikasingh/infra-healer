@@ -30,7 +30,7 @@ class K8s(ContextApi):
     def read_namespaced_pod(self, name, ns):
         return NS(metadata=NS(uid="uid-1", name=name, owner_references=[]))
 
-    def delete_namespaced_pod(self, name, ns):
+    def delete_namespaced_pod(self, name, ns, body=None):
         self.deleted.append(name)
 
 
@@ -149,7 +149,7 @@ def test_failed_verification_escalates_via_remediation_failed():
 
 def test_remediation_error_escalates():
     h, api, st, f, s = build([reply(conf=0.95)])
-    api.delete_namespaced_pod = lambda *a: (_ for _ in ()).throw(RuntimeError("api down"))
+    api.delete_namespaced_pod = lambda *a, **kw: (_ for _ in ()).throw(RuntimeError("api down"))
     iid = go(h, f, s)
     assert state(st, iid) == "ESCALATED" and h._verifier.calls == 0  # no verify after a failed action
 

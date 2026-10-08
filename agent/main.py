@@ -10,7 +10,7 @@ import signal
 import threading
 from concurrent.futures import ThreadPoolExecutor
 
-from kubernetes import client
+from kubernetes import client, config as kube_config
 
 from agent.detect.reactive_rules import Finding
 from agent.diagnose.diagnoser import Diagnoser
@@ -22,7 +22,7 @@ from agent.monitor.watcher import PodWatcher, _load_kube, snapshot_from_pod
 from agent.policy.engine import Mode, PolicyConfig
 from agent.remediate.executor import Remediator
 from agent.state.store import Store
-from agent.verify.verifier import Verifier
+from agent.verify.verifier import Verifier, workload_selector
 
 
 def _provider(name: str, model: str | None):
@@ -36,7 +36,10 @@ def _provider(name: str, model: str | None):
 
 
 def run(a) -> None:
-    _load_kube()
+    if a.context:
+        kube_config.load_kube_config(context=a.context)
+    else:
+        _load_kube()
     core, apps = client.CoreV1Api(), client.AppsV1Api()
     store = Store(a.db)
     allowed = frozenset(Action(x) for x in a.allow.split(","))
@@ -45,7 +48,8 @@ def run(a) -> None:
     healer = Healer(core, store, Diagnoser(_provider(a.provider, a.model)), config,
                     Remediator(core, apps, store, allowed_actions=allowed),
                     Verifier(core, stabilization_seconds=a.stabilization, timeout_seconds=a.verify_timeout))
-    watcher = PodWatcher(core, a.namespace, metrics=MetricsSource(client.CustomObjectsApi()))
+    watcher = PodWatcher(core, a.namespace, label_selector=a.selector, metrics=MetricsSource(client.CustomObjectsApi()),
+                         on_snapshot=lambda s: store.record_snapshot(s, workload_selector(s.labels)))
     pool, stop = ThreadPoolExecutor(max_workers=4), threading.Event()
     logging.info("InfraHealer running: mode=%s threshold=%.2f allowed=%s", config.mode.value,
                  config.confidence_threshold, sorted(x.value for x in allowed))
@@ -54,7 +58,8 @@ def run(a) -> None:
         pod = next((p for p in core.list_namespaced_pod(a.namespace).items if p.metadata.uid == f.uid), None)
         if pod is None:
             return
-        snap = snapshot_from_pod(pod)
+        history = watcher.window.history(f.uid)
+        snap = history[-1] if history else snapshot_from_pod(pod)
         iid = healer.open_incident(f, snap)
         if iid:
             logging.info("incident %s opened: %s on %s", iid, f.kind.value, f.pod)
@@ -77,6 +82,8 @@ def main() -> None:
     sub = p.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run")
     r.add_argument("--namespace", default="demo")
+    r.add_argument("--context", help="explicit kubeconfig context")
+    r.add_argument("--selector", help="limit watched pods to this label selector")
     r.add_argument("--mode", choices=[m.value for m in Mode], default=Mode.HUMAN_APPROVAL.value)
     r.add_argument("--threshold", type=float, default=0.8)
     r.add_argument("--allow", default="RESTART_POD", help="comma list of whitelisted actions")

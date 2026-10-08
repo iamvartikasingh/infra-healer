@@ -65,7 +65,7 @@ Kubernetes and provider interactions use fakes. Passing tests establish local be
 | --- | --- |
 | Concurrent workers check rate counts before claiming | Atomically reserve an autonomy budget with the execution claim |
 | No restart reconciliation | Reconcile open incidents and claimed executions at startup |
-| Pod UID checked before deletion, without a delete precondition | Use Kubernetes UID preconditions to close the read/delete race |
+| Pod UID checked before deletion and enforced with a delete precondition | Extend identity and concurrency safeguards to deployment mutations |
 | Scale and rollback resolve ownership by pod name | Validate target identity and resource versions before mutation |
 | Label-based verification can select too broadly if labels are empty | Persist validated controller identity and its selector |
 | Readiness checks do not prove application recovery | Add service-level checks and longer observation windows |

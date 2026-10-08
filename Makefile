@@ -5,7 +5,7 @@ MODE    ?= HUMAN_APPROVAL
 PROVIDER ?= fake
 DB      ?= infra-healer.db
 
-.PHONY: preflight cluster build deploy demo-up crash leak metrics leak-slow watch agent-watch agent-run dashboard incidents test clean
+.PHONY: preflight cluster build deploy demo-up crash leak metrics leak-slow watch agent-watch agent-run dashboard incidents test clean real-agent real-leak
 preflight:
 	@for t in docker kind kubectl; do command -v $$t >/dev/null || { echo "missing '$$t' - install it first (e.g. brew install $$t)"; exit 1; }; done
 	@docker info >/dev/null 2>&1 || { echo "Docker daemon is not running"; exit 1; }
@@ -41,5 +41,9 @@ dashboard:  ## live incident dashboard on http://localhost:8000
 	$(PYTHON) -m dashboard.app --db $(DB)
 incidents:
 	$(PYTHON) -m agent.main --db $(DB) list
+real-agent:
+	$(PYTHON) -m agent.main --db $(DB) run --context kind-$(CLUSTER) --namespace demo --selector app=demo-service --mode HUMAN_APPROVAL --provider $(PROVIDER)
+real-leak:
+	$(PYTHON) -m scripts.leak_demo --db $(DB) --cluster $(CLUSTER)
 clean:
 	kind delete cluster --name $(CLUSTER)

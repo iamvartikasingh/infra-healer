@@ -55,12 +55,13 @@ class Healer:
     def run_incident(self, iid: str, finding: Finding, snapshot: PodSnapshot, history=None) -> None:
         """DETECTED -> ... Safe to call from a worker thread; never raises."""
         try:
-            self.store.transition(iid, State.DIAGNOSING, "collecting context and asking the model")
+            self.store.transition(iid, State.DIAGNOSING, "collecting context and requesting diagnosis")
             ctx = collect_context(self._api, finding, snapshot, history)
+            self.store.add_note(iid, "evidence collected", {"context": ctx.model_dump(mode="json")})
             result = self._diagnoser.diagnose(ctx)
             diagnosis = result.diagnosis
             decision = evaluate(diagnosis, self._config, self._policy_ctx(iid, predictive=finding.predictive))
-            fields = {"policy_json": _dumps({**decision.to_json(), "mode": self._config.mode.value,
+            fields = {"context_json": ctx.to_json(), "policy_json": _dumps({**decision.to_json(), "mode": self._config.mode.value,
                                              "threshold": self._config.confidence_threshold})}
             if diagnosis:
                 fields["diagnosis_json"] = diagnosis.model_dump_json(by_alias=True)

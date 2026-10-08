@@ -1,0 +1,544 @@
+{
+  "source": "Local agent database; inspect provider choice separately",
+  "incident": {
+    "id": "8205059f",
+    "pod_uid": "8b3f02fe-5ae2-45ff-8649-1962056ac949",
+    "namespace": "demo",
+    "pod": "demo-service-54f959cf64-65llm",
+    "selector": "app=demo-service",
+    "finding_kind": "PREDICTED_OOM",
+    "finding_detail": "memory rising 131 KiB/s (R\u00b2=0.93, 5 samples); 29/64 MiB, limit in ~271s",
+    "state": "RESOLVED",
+    "approval": "APPROVED",
+    "created_at": "2026-10-08T04:56:12.184855+00:00",
+    "updated_at": "2026-10-08T04:56:41.668848+00:00",
+    "finding_confidence": 0.465,
+    "context": {
+      "finding": {
+        "kind": "PREDICTED_OOM",
+        "severity": "WARNING",
+        "namespace": "demo",
+        "pod": "demo-service-54f959cf64-65llm",
+        "uid": "8b3f02fe-5ae2-45ff-8649-1962056ac949",
+        "detail": "memory rising 131 KiB/s (R\u00b2=0.93, 5 samples); 29/64 MiB, limit in ~271s",
+        "observed_at": "2026-10-08T04:56:12.165533+00:00",
+        "dedupe_key": "8b3f02fe-5ae2-45ff-8649-1962056ac949:PREDICTED_OOM",
+        "confidence": 0.465
+      },
+      "pod": {
+        "uid": "8b3f02fe-5ae2-45ff-8649-1962056ac949",
+        "namespace": "demo",
+        "name": "demo-service-54f959cf64-65llm",
+        "phase": "Running",
+        "ready": true,
+        "restart_count": 1,
+        "waiting_reason": null,
+        "last_terminated_reason": null,
+        "last_terminated_exit_code": null,
+        "observed_at": "2026-10-08T04:56:12.165533+00:00",
+        "labels": {
+          "app": "demo-service",
+          "pod-template-hash": "54f959cf64"
+        },
+        "memory_bytes": 30752768,
+        "cpu_millicores": 18,
+        "metrics_timestamp": "2026-10-08T04:56:10+00:00",
+        "memory_limit_bytes": 67108864
+      },
+      "history": [
+        {
+          "observed_at": "2026-10-08T04:55:11.470954Z",
+          "restart_count": 1,
+          "ready": true,
+          "waiting_reason": null,
+          "memory_bytes": 23347200,
+          "metrics_timestamp": "2026-10-08T04:55:10Z"
+        },
+        {
+          "observed_at": "2026-10-08T04:55:14.506697Z",
+          "restart_count": 1,
+          "ready": true,
+          "waiting_reason": null,
+          "memory_bytes": 23347200,
+          "metrics_timestamp": "2026-10-08T04:55:10Z"
+        },
+        {
+          "observed_at": "2026-10-08T04:55:17.540274Z",
+          "restart_count": 1,
+          "ready": true,
+          "waiting_reason": null,
+          "memory_bytes": 23347200,
+          "metrics_timestamp": "2026-10-08T04:55:10Z"
+        },
+        {
+          "observed_at": "2026-10-08T04:55:20.576831Z",
+          "restart_count": 1,
+          "ready": true,
+          "waiting_reason": null,
+          "memory_bytes": 23347200,
+          "metrics_timestamp": "2026-10-08T04:55:10Z"
+        },
+        {
+          "observed_at": "2026-10-08T04:55:23.612106Z",
+          "restart_count": 1,
+          "ready": true,
+          "waiting_reason": null,
+          "memory_bytes": 23347200,
+          "metrics_timestamp": "2026-10-08T04:55:10Z"
+        },
+        {
+          "observed_at": "2026-10-08T04:55:26.650358Z",
+          "restart_count": 1,
+          "ready": true,
+          "waiting_reason": null,
+          "memory_bytes": 23351296,
+          "metrics_timestamp": "2026-10-08T04:55:25Z"
+        },
+        {
+          "observed_at": "2026-10-08T04:55:29.667660Z",
+          "restart_count": 1,
+          "ready": true,
+          "waiting_reason": null,
+          "memory_bytes": 23351296,
+          "metrics_timestamp": "2026-10-08T04:55:25Z"
+        },
+        {
+          "observed_at": "2026-10-08T04:55:32.688738Z",
+          "restart_count": 1,
+          "ready": true,
+          "waiting_reason": null,
+          "memory_bytes": 23351296,
+          "metrics_timestamp": "2026-10-08T04:55:25Z"
+        },
+        {
+          "observed_at": "2026-10-08T04:55:35.708697Z",
+          "restart_count": 1,
+          "ready": true,
+          "waiting_reason": null,
+          "memory_bytes": 23351296,
+          "metrics_timestamp": "2026-10-08T04:55:25Z"
+        },
+        {
+          "observed_at": "2026-10-08T04:55:38.742203Z",
+          "restart_count": 1,
+          "ready": true,
+          "waiting_reason": null,
+          "memory_bytes": 23351296,
+          "metrics_timestamp": "2026-10-08T04:55:25Z"
+        },
+        {
+          "observed_at": "2026-10-08T04:55:41.766739Z",
+          "restart_count": 1,
+          "ready": true,
+          "waiting_reason": null,
+          "memory_bytes": 25473024,
+          "metrics_timestamp": "2026-10-08T04:55:40Z"
+        },
+        {
+          "observed_at": "2026-10-08T04:55:44.794440Z",
+          "restart_count": 1,
+          "ready": true,
+          "waiting_reason": null,
+          "memory_bytes": 25473024,
+          "metrics_timestamp": "2026-10-08T04:55:40Z"
+        },
+        {
+          "observed_at": "2026-10-08T04:55:47.847801Z",
+          "restart_count": 1,
+          "ready": true,
+          "waiting_reason": null,
+          "memory_bytes": 25473024,
+          "metrics_timestamp": "2026-10-08T04:55:40Z"
+        },
+        {
+          "observed_at": "2026-10-08T04:55:50.902669Z",
+          "restart_count": 1,
+          "ready": true,
+          "waiting_reason": null,
+          "memory_bytes": 25473024,
+          "metrics_timestamp": "2026-10-08T04:55:40Z"
+        },
+        {
+          "observed_at": "2026-10-08T04:55:54.007604Z",
+          "restart_count": 1,
+          "ready": true,
+          "waiting_reason": null,
+          "memory_bytes": 25473024,
+          "metrics_timestamp": "2026-10-08T04:55:40Z"
+        },
+        {
+          "observed_at": "2026-10-08T04:55:57.022195Z",
+          "restart_count": 1,
+          "ready": true,
+          "waiting_reason": null,
+          "memory_bytes": 28672000,
+          "metrics_timestamp": "2026-10-08T04:55:55Z"
+        },
+        {
+          "observed_at": "2026-10-08T04:56:00.053418Z",
+          "restart_count": 1,
+          "ready": true,
+          "waiting_reason": null,
+          "memory_bytes": 28672000,
+          "metrics_timestamp": "2026-10-08T04:55:55Z"
+        },
+        {
+          "observed_at": "2026-10-08T04:56:03.076639Z",
+          "restart_count": 1,
+          "ready": true,
+          "waiting_reason": null,
+          "memory_bytes": 28672000,
+          "metrics_timestamp": "2026-10-08T04:55:55Z"
+        },
+        {
+          "observed_at": "2026-10-08T04:56:06.128890Z",
+          "restart_count": 1,
+          "ready": true,
+          "waiting_reason": null,
+          "memory_bytes": 28672000,
+          "metrics_timestamp": "2026-10-08T04:55:55Z"
+        },
+        {
+          "observed_at": "2026-10-08T04:56:09.142441Z",
+          "restart_count": 1,
+          "ready": true,
+          "waiting_reason": null,
+          "memory_bytes": 28672000,
+          "metrics_timestamp": "2026-10-08T04:55:55Z"
+        },
+        {
+          "observed_at": "2026-10-08T04:56:12.165533Z",
+          "restart_count": 1,
+          "ready": true,
+          "waiting_reason": null,
+          "memory_bytes": 30752768,
+          "metrics_timestamp": "2026-10-08T04:56:10Z"
+        }
+      ],
+      "events": [],
+      "log_tail": "2026-10-06 20:35:05,389 INFO Serving on http://0.0.0.0:8080\n2026-10-08 04:55:29,528 WARNING leaked 1 MB (total 1 MB)\n2026-10-08 04:55:35,918 WARNING leaked 1 MB (total 2 MB)\n2026-10-08 04:55:42,198 WARNING leaked 1 MB (total 3 MB)\n2026-10-08 04:55:48,587 WARNING leaked 1 MB (total 4 MB)\n2026-10-08 04:55:54,996 WARNING leaked 1 MB (total 5 MB)\n2026-10-08 04:56:01,596 WARNING leaked 1 MB (total 6 MB)\n2026-10-08 04:56:08,201 WARNING leaked 1 MB (total 7 MB)\n",
+      "previous_log_tail": ""
+    },
+    "diagnosis": {
+      "rootCause": "Memory is growing steadily toward the container limit.",
+      "confidence": 0.75,
+      "recommendedAction": "RESTART_POD",
+      "reasoning": "fake provider: mapped from PREDICTED_OOM"
+    },
+    "policy": {
+      "outcome": "REQUIRE_APPROVAL",
+      "rule": "APPROVAL_REQUIRED",
+      "reason": "human-approval mode: every action needs sign-off",
+      "action": "RESTART_POD",
+      "confidence": 0.75,
+      "mode": "HUMAN_APPROVAL",
+      "threshold": 0.8
+    }
+  },
+  "timeline": [
+    {
+      "seq": 1,
+      "incident_id": "8205059f",
+      "ts": "2026-10-08T04:56:12.184855+00:00",
+      "from_state": null,
+      "to_state": "DETECTED",
+      "note": "memory rising 131 KiB/s (R\u00b2=0.93, 5 samples); 29/64 MiB, limit in ~271s",
+      "data_json": null
+    },
+    {
+      "seq": 2,
+      "incident_id": "8205059f",
+      "ts": "2026-10-08T04:56:12.185708+00:00",
+      "from_state": "DETECTED",
+      "to_state": "DIAGNOSING",
+      "note": "collecting context and asking the model",
+      "data_json": null
+    },
+    {
+      "seq": 3,
+      "incident_id": "8205059f",
+      "ts": "2026-10-08T04:56:12.202117+00:00",
+      "from_state": null,
+      "to_state": null,
+      "note": "evidence collected",
+      "data_json": "{\"context\": {\"finding\": {\"kind\": \"PREDICTED_OOM\", \"severity\": \"WARNING\", \"namespace\": \"demo\", \"pod\": \"demo-service-54f959cf64-65llm\", \"uid\": \"8b3f02fe-5ae2-45ff-8649-1962056ac949\", \"detail\": \"memory rising 131 KiB/s (R\\u00b2=0.93, 5 samples); 29/64 MiB, limit in ~271s\", \"observed_at\": \"2026-10-08T04:56:12.165533+00:00\", \"dedupe_key\": \"8b3f02fe-5ae2-45ff-8649-1962056ac949:PREDICTED_OOM\", \"confidence\": 0.465}, \"pod\": {\"uid\": \"8b3f02fe-5ae2-45ff-8649-1962056ac949\", \"namespace\": \"demo\", \"name\": \"demo-service-54f959cf64-65llm\", \"phase\": \"Running\", \"ready\": true, \"restart_count\": 1, \"waiting_reason\": null, \"last_terminated_reason\": null, \"last_terminated_exit_code\": null, \"observed_at\": \"2026-10-08T04:56:12.165533+00:00\", \"labels\": {\"app\": \"demo-service\", \"pod-template-hash\": \"54f959cf64\"}, \"memory_bytes\": 30752768, \"cpu_millicores\": 18, \"metrics_timestamp\": \"2026-10-08T04:56:10+00:00\", \"memory_limit_bytes\": 67108864}, \"history\": [{\"observed_at\": \"2026-10-08T04:55:11.470954Z\", \"restart_count\": 1, \"ready\": true, \"waiting_reason\": null, \"memory_bytes\": 23347200, \"metrics_timestamp\": \"2026-10-08T04:55:10Z\"}, {\"observed_at\": \"2026-10-08T04:55:14.506697Z\", \"restart_count\": 1, \"ready\": true, \"waiting_reason\": null, \"memory_bytes\": 23347200, \"metrics_timestamp\": \"2026-10-08T04:55:10Z\"}, {\"observed_at\": \"2026-10-08T04:55:17.540274Z\", \"restart_count\": 1, \"ready\": true, \"waiting_reason\": null, \"memory_bytes\": 23347200, \"metrics_timestamp\": \"2026-10-08T04:55:10Z\"}, {\"observed_at\": \"2026-10-08T04:55:20.576831Z\", \"restart_count\": 1, \"ready\": true, \"waiting_reason\": null, \"memory_bytes\": 23347200, \"metrics_timestamp\": \"2026-10-08T04:55:10Z\"}, {\"observed_at\": \"2026-10-08T04:55:23.612106Z\", \"restart_count\": 1, \"ready\": true, \"waiting_reason\": null, \"memory_bytes\": 23347200, \"metrics_timestamp\": \"2026-10-08T04:55:10Z\"}, {\"observed_at\": \"2026-10-08T04:55:26.650358Z\", \"restart_count\": 1, \"ready\": true, \"waiting_reason\": null, \"memory_bytes\": 23351296, \"metrics_timestamp\": \"2026-10-08T04:55:25Z\"}, {\"observed_at\": \"2026-10-08T04:55:29.667660Z\", \"restart_count\": 1, \"ready\": true, \"waiting_reason\": null, \"memory_bytes\": 23351296, \"metrics_timestamp\": \"2026-10-08T04:55:25Z\"}, {\"observed_at\": \"2026-10-08T04:55:32.688738Z\", \"restart_count\": 1, \"ready\": true, \"waiting_reason\": null, \"memory_bytes\": 23351296, \"metrics_timestamp\": \"2026-10-08T04:55:25Z\"}, {\"observed_at\": \"2026-10-08T04:55:35.708697Z\", \"restart_count\": 1, \"ready\": true, \"waiting_reason\": null, \"memory_bytes\": 23351296, \"metrics_timestamp\": \"2026-10-08T04:55:25Z\"}, {\"observed_at\": \"2026-10-08T04:55:38.742203Z\", \"restart_count\": 1, \"ready\": true, \"waiting_reason\": null, \"memory_bytes\": 23351296, \"metrics_timestamp\": \"2026-10-08T04:55:25Z\"}, {\"observed_at\": \"2026-10-08T04:55:41.766739Z\", \"restart_count\": 1, \"ready\": true, \"waiting_reason\": null, \"memory_bytes\": 25473024, \"metrics_timestamp\": \"2026-10-08T04:55:40Z\"}, {\"observed_at\": \"2026-10-08T04:55:44.794440Z\", \"restart_count\": 1, \"ready\": true, \"waiting_reason\": null, \"memory_bytes\": 25473024, \"metrics_timestamp\": \"2026-10-08T04:55:40Z\"}, {\"observed_at\": \"2026-10-08T04:55:47.847801Z\", \"restart_count\": 1, \"ready\": true, \"waiting_reason\": null, \"memory_bytes\": 25473024, \"metrics_timestamp\": \"2026-10-08T04:55:40Z\"}, {\"observed_at\": \"2026-10-08T04:55:50.902669Z\", \"restart_count\": 1, \"ready\": true, \"waiting_reason\": null, \"memory_bytes\": 25473024, \"metrics_timestamp\": \"2026-10-08T04:55:40Z\"}, {\"observed_at\": \"2026-10-08T04:55:54.007604Z\", \"restart_count\": 1, \"ready\": true, \"waiting_reason\": null, \"memory_bytes\": 25473024, \"metrics_timestamp\": \"2026-10-08T04:55:40Z\"}, {\"observed_at\": \"2026-10-08T04:55:57.022195Z\", \"restart_count\": 1, \"ready\": true, \"waiting_reason\": null, \"memory_bytes\": 28672000, \"metrics_timestamp\": \"2026-10-08T04:55:55Z\"}, {\"observed_at\": \"2026-10-08T04:56:00.053418Z\", \"restart_count\": 1, \"ready\": true, \"waiting_reason\": null, \"memory_bytes\": 28672000, \"metrics_timestamp\": \"2026-10-08T04:55:55Z\"}, {\"observed_at\": \"2026-10-08T04:56:03.076639Z\", \"restart_count\": 1, \"ready\": true, \"waiting_reason\": null, \"memory_bytes\": 28672000, \"metrics_timestamp\": \"2026-10-08T04:55:55Z\"}, {\"observed_at\": \"2026-10-08T04:56:06.128890Z\", \"restart_count\": 1, \"ready\": true, \"waiting_reason\": null, \"memory_bytes\": 28672000, \"metrics_timestamp\": \"2026-10-08T04:55:55Z\"}, {\"observed_at\": \"2026-10-08T04:56:09.142441Z\", \"restart_count\": 1, \"ready\": true, \"waiting_reason\": null, \"memory_bytes\": 28672000, \"metrics_timestamp\": \"2026-10-08T04:55:55Z\"}, {\"observed_at\": \"2026-10-08T04:56:12.165533Z\", \"restart_count\": 1, \"ready\": true, \"waiting_reason\": null, \"memory_bytes\": 30752768, \"metrics_timestamp\": \"2026-10-08T04:56:10Z\"}], \"events\": [], \"log_tail\": \"2026-10-06 20:35:05,389 INFO Serving on http://0.0.0.0:8080\\n2026-10-08 04:55:29,528 WARNING leaked 1 MB (total 1 MB)\\n2026-10-08 04:55:35,918 WARNING leaked 1 MB (total 2 MB)\\n2026-10-08 04:55:42,198 WARNING leaked 1 MB (total 3 MB)\\n2026-10-08 04:55:48,587 WARNING leaked 1 MB (total 4 MB)\\n2026-10-08 04:55:54,996 WARNING leaked 1 MB (total 5 MB)\\n2026-10-08 04:56:01,596 WARNING leaked 1 MB (total 6 MB)\\n2026-10-08 04:56:08,201 WARNING leaked 1 MB (total 7 MB)\\n\", \"previous_log_tail\": \"\"}}"
+    },
+    {
+      "seq": 4,
+      "incident_id": "8205059f",
+      "ts": "2026-10-08T04:56:12.202821+00:00",
+      "from_state": "DIAGNOSING",
+      "to_state": "ACTION_PROPOSED",
+      "note": "model proposed RESTART_POD (0.75); policy REQUIRE_APPROVAL [APPROVAL_REQUIRED]: human-approval mode: every action needs sign-off",
+      "data_json": "{\"approval\": \"PENDING\", \"context_json\": \"{\\n  \\\"finding\\\": {\\n    \\\"kind\\\": \\\"PREDICTED_OOM\\\",\\n    \\\"severity\\\": \\\"WARNING\\\",\\n    \\\"namespace\\\": \\\"demo\\\",\\n    \\\"pod\\\": \\\"demo-service-54f959cf64-65llm\\\",\\n    \\\"uid\\\": \\\"8b3f02fe-5ae2-45ff-8649-1962056ac949\\\",\\n    \\\"detail\\\": \\\"memory rising 131 KiB/s (R\\u00b2=0.93, 5 samples); 29/64 MiB, limit in ~271s\\\",\\n    \\\"observed_at\\\": \\\"2026-10-08T04:56:12.165533+00:00\\\",\\n    \\\"dedupe_key\\\": \\\"8b3f02fe-5ae2-45ff-8649-1962056ac949:PREDICTED_OOM\\\",\\n    \\\"confidence\\\": 0.465\\n  },\\n  \\\"pod\\\": {\\n    \\\"uid\\\": \\\"8b3f02fe-5ae2-45ff-8649-1962056ac949\\\",\\n    \\\"namespace\\\": \\\"demo\\\",\\n    \\\"name\\\": \\\"demo-service-54f959cf64-65llm\\\",\\n    \\\"phase\\\": \\\"Running\\\",\\n    \\\"ready\\\": true,\\n    \\\"restart_count\\\": 1,\\n    \\\"waiting_reason\\\": null,\\n    \\\"last_terminated_reason\\\": null,\\n    \\\"last_terminated_exit_code\\\": null,\\n    \\\"observed_at\\\": \\\"2026-10-08T04:56:12.165533+00:00\\\",\\n    \\\"labels\\\": {\\n      \\\"app\\\": \\\"demo-service\\\",\\n      \\\"pod-template-hash\\\": \\\"54f959cf64\\\"\\n    },\\n    \\\"memory_bytes\\\": 30752768,\\n    \\\"cpu_millicores\\\": 18,\\n    \\\"metrics_timestamp\\\": \\\"2026-10-08T04:56:10+00:00\\\",\\n    \\\"memory_limit_bytes\\\": 67108864\\n  },\\n  \\\"history\\\": [\\n    {\\n      \\\"observed_at\\\": \\\"2026-10-08T04:55:11.470954Z\\\",\\n      \\\"restart_count\\\": 1,\\n      \\\"ready\\\": true,\\n      \\\"waiting_reason\\\": null,\\n      \\\"memory_bytes\\\": 23347200,\\n      \\\"metrics_timestamp\\\": \\\"2026-10-08T04:55:10Z\\\"\\n    },\\n    {\\n      \\\"observed_at\\\": \\\"2026-10-08T04:55:14.506697Z\\\",\\n      \\\"restart_count\\\": 1,\\n      \\\"ready\\\": true,\\n      \\\"waiting_reason\\\": null,\\n      \\\"memory_bytes\\\": 23347200,\\n      \\\"metrics_timestamp\\\": \\\"2026-10-08T04:55:10Z\\\"\\n    },\\n    {\\n      \\\"observed_at\\\": \\\"2026-10-08T04:55:17.540274Z\\\",\\n      \\\"restart_count\\\": 1,\\n      \\\"ready\\\": true,\\n      \\\"waiting_reason\\\": null,\\n      \\\"memory_bytes\\\": 23347200,\\n      \\\"metrics_timestamp\\\": \\\"2026-10-08T04:55:10Z\\\"\\n    },\\n    {\\n      \\\"observed_at\\\": \\\"2026-10-08T04:55:20.576831Z\\\",\\n      \\\"restart_count\\\": 1,\\n      \\\"ready\\\": true,\\n      \\\"waiting_reason\\\": null,\\n      \\\"memory_bytes\\\": 23347200,\\n      \\\"metrics_timestamp\\\": \\\"2026-10-08T04:55:10Z\\\"\\n    },\\n    {\\n      \\\"observed_at\\\": \\\"2026-10-08T04:55:23.612106Z\\\",\\n      \\\"restart_count\\\": 1,\\n      \\\"ready\\\": true,\\n      \\\"waiting_reason\\\": null,\\n      \\\"memory_bytes\\\": 23347200,\\n      \\\"metrics_timestamp\\\": \\\"2026-10-08T04:55:10Z\\\"\\n    },\\n    {\\n      \\\"observed_at\\\": \\\"2026-10-08T04:55:26.650358Z\\\",\\n      \\\"restart_count\\\": 1,\\n      \\\"ready\\\": true,\\n      \\\"waiting_reason\\\": null,\\n      \\\"memory_bytes\\\": 23351296,\\n      \\\"metrics_timestamp\\\": \\\"2026-10-08T04:55:25Z\\\"\\n    },\\n    {\\n      \\\"observed_at\\\": \\\"2026-10-08T04:55:29.667660Z\\\",\\n      \\\"restart_count\\\": 1,\\n      \\\"ready\\\": true,\\n      \\\"waiting_reason\\\": null,\\n      \\\"memory_bytes\\\": 23351296,\\n      \\\"metrics_timestamp\\\": \\\"2026-10-08T04:55:25Z\\\"\\n    },\\n    {\\n      \\\"observed_at\\\": \\\"2026-10-08T04:55:32.688738Z\\\",\\n      \\\"restart_count\\\": 1,\\n      \\\"ready\\\": true,\\n      \\\"waiting_reason\\\": null,\\n      \\\"memory_bytes\\\": 23351296,\\n      \\\"metrics_timestamp\\\": \\\"2026-10-08T04:55:25Z\\\"\\n    },\\n    {\\n      \\\"observed_at\\\": \\\"2026-10-08T04:55:35.708697Z\\\",\\n      \\\"restart_count\\\": 1,\\n      \\\"ready\\\": true,\\n      \\\"waiting_reason\\\": null,\\n      \\\"memory_bytes\\\": 23351296,\\n      \\\"metrics_timestamp\\\": \\\"2026-10-08T04:55:25Z\\\"\\n    },\\n    {\\n      \\\"observed_at\\\": \\\"2026-10-08T04:55:38.742203Z\\\",\\n      \\\"restart_count\\\": 1,\\n      \\\"ready\\\": true,\\n      \\\"waiting_reason\\\": null,\\n      \\\"memory_bytes\\\": 23351296,\\n      \\\"metrics_timestamp\\\": \\\"2026-10-08T04:55:25Z\\\"\\n    },\\n    {\\n      \\\"observed_at\\\": \\\"2026-10-08T04:55:41.766739Z\\\",\\n      \\\"restart_count\\\": 1,\\n      \\\"ready\\\": true,\\n      \\\"waiting_reason\\\": null,\\n      \\\"memory_bytes\\\": 25473024,\\n      \\\"metrics_timestamp\\\": \\\"2026-10-08T04:55:40Z\\\"\\n    },\\n    {\\n      \\\"observed_at\\\": \\\"2026-10-08T04:55:44.794440Z\\\",\\n      \\\"restart_count\\\": 1,\\n      \\\"ready\\\": true,\\n      \\\"waiting_reason\\\": null,\\n      \\\"memory_bytes\\\": 25473024,\\n      \\\"metrics_timestamp\\\": \\\"2026-10-08T04:55:40Z\\\"\\n    },\\n    {\\n      \\\"observed_at\\\": \\\"2026-10-08T04:55:47.847801Z\\\",\\n      \\\"restart_count\\\": 1,\\n      \\\"ready\\\": true,\\n      \\\"waiting_reason\\\": null,\\n      \\\"memory_bytes\\\": 25473024,\\n      \\\"metrics_timestamp\\\": \\\"2026-10-08T04:55:40Z\\\"\\n    },\\n    {\\n      \\\"observed_at\\\": \\\"2026-10-08T04:55:50.902669Z\\\",\\n      \\\"restart_count\\\": 1,\\n      \\\"ready\\\": true,\\n      \\\"waiting_reason\\\": null,\\n      \\\"memory_bytes\\\": 25473024,\\n      \\\"metrics_timestamp\\\": \\\"2026-10-08T04:55:40Z\\\"\\n    },\\n    {\\n      \\\"observed_at\\\": \\\"2026-10-08T04:55:54.007604Z\\\",\\n      \\\"restart_count\\\": 1,\\n      \\\"ready\\\": true,\\n      \\\"waiting_reason\\\": null,\\n      \\\"memory_bytes\\\": 25473024,\\n      \\\"metrics_timestamp\\\": \\\"2026-10-08T04:55:40Z\\\"\\n    },\\n    {\\n      \\\"observed_at\\\": \\\"2026-10-08T04:55:57.022195Z\\\",\\n      \\\"restart_count\\\": 1,\\n      \\\"ready\\\": true,\\n      \\\"waiting_reason\\\": null,\\n      \\\"memory_bytes\\\": 28672000,\\n      \\\"metrics_timestamp\\\": \\\"2026-10-08T04:55:55Z\\\"\\n    },\\n    {\\n      \\\"observed_at\\\": \\\"2026-10-08T04:56:00.053418Z\\\",\\n      \\\"restart_count\\\": 1,\\n      \\\"ready\\\": true,\\n      \\\"waiting_reason\\\": null,\\n      \\\"memory_bytes\\\": 28672000,\\n      \\\"metrics_timestamp\\\": \\\"2026-10-08T04:55:55Z\\\"\\n    },\\n    {\\n      \\\"observed_at\\\": \\\"2026-10-08T04:56:03.076639Z\\\",\\n      \\\"restart_count\\\": 1,\\n      \\\"ready\\\": true,\\n      \\\"waiting_reason\\\": null,\\n      \\\"memory_bytes\\\": 28672000,\\n      \\\"metrics_timestamp\\\": \\\"2026-10-08T04:55:55Z\\\"\\n    },\\n    {\\n      \\\"observed_at\\\": \\\"2026-10-08T04:56:06.128890Z\\\",\\n      \\\"restart_count\\\": 1,\\n      \\\"ready\\\": true,\\n      \\\"waiting_reason\\\": null,\\n      \\\"memory_bytes\\\": 28672000,\\n      \\\"metrics_timestamp\\\": \\\"2026-10-08T04:55:55Z\\\"\\n    },\\n    {\\n      \\\"observed_at\\\": \\\"2026-10-08T04:56:09.142441Z\\\",\\n      \\\"restart_count\\\": 1,\\n      \\\"ready\\\": true,\\n      \\\"waiting_reason\\\": null,\\n      \\\"memory_bytes\\\": 28672000,\\n      \\\"metrics_timestamp\\\": \\\"2026-10-08T04:55:55Z\\\"\\n    },\\n    {\\n      \\\"observed_at\\\": \\\"2026-10-08T04:56:12.165533Z\\\",\\n      \\\"restart_count\\\": 1,\\n      \\\"ready\\\": true,\\n      \\\"waiting_reason\\\": null,\\n      \\\"memory_bytes\\\": 30752768,\\n      \\\"metrics_timestamp\\\": \\\"2026-10-08T04:56:10Z\\\"\\n    }\\n  ],\\n  \\\"events\\\": [],\\n  \\\"log_tail\\\": \\\"2026-10-06 20:35:05,389 INFO Serving on http://0.0.0.0:8080\\\\n2026-10-08 04:55:29,528 WARNING leaked 1 MB (total 1 MB)\\\\n2026-10-08 04:55:35,918 WARNING leaked 1 MB (total 2 MB)\\\\n2026-10-08 04:55:42,198 WARNING leaked 1 MB (total 3 MB)\\\\n2026-10-08 04:55:48,587 WARNING leaked 1 MB (total 4 MB)\\\\n2026-10-08 04:55:54,996 WARNING leaked 1 MB (total 5 MB)\\\\n2026-10-08 04:56:01,596 WARNING leaked 1 MB (total 6 MB)\\\\n2026-10-08 04:56:08,201 WARNING leaked 1 MB (total 7 MB)\\\\n\\\",\\n  \\\"previous_log_tail\\\": \\\"\\\"\\n}\", \"policy_json\": \"{\\\"outcome\\\": \\\"REQUIRE_APPROVAL\\\", \\\"rule\\\": \\\"APPROVAL_REQUIRED\\\", \\\"reason\\\": \\\"human-approval mode: every action needs sign-off\\\", \\\"action\\\": \\\"RESTART_POD\\\", \\\"confidence\\\": 0.75, \\\"mode\\\": \\\"HUMAN_APPROVAL\\\", \\\"threshold\\\": 0.8}\", \"diagnosis_json\": \"{\\\"rootCause\\\":\\\"Memory is growing steadily toward the container limit.\\\",\\\"confidence\\\":0.75,\\\"recommendedAction\\\":\\\"RESTART_POD\\\",\\\"reasoning\\\":\\\"fake provider: mapped from PREDICTED_OOM\\\"}\"}"
+    },
+    {
+      "seq": 5,
+      "incident_id": "8205059f",
+      "ts": "2026-10-08T04:56:23.090543+00:00",
+      "from_state": null,
+      "to_state": null,
+      "note": "human approved the proposed action",
+      "data_json": null
+    },
+    {
+      "seq": 6,
+      "incident_id": "8205059f",
+      "ts": "2026-10-08T04:56:23.570256+00:00",
+      "from_state": "ACTION_PROPOSED",
+      "to_state": "REMEDIATING",
+      "note": "human executing RESTART_POD",
+      "data_json": null
+    },
+    {
+      "seq": 7,
+      "incident_id": "8205059f",
+      "ts": "2026-10-08T04:56:23.601116+00:00",
+      "from_state": null,
+      "to_state": null,
+      "note": "remediation EXECUTED: deleted pod demo-service-54f959cf64-65llm; its controller will recreate it",
+      "data_json": null
+    },
+    {
+      "seq": 8,
+      "incident_id": "8205059f",
+      "ts": "2026-10-08T04:56:23.601258+00:00",
+      "from_state": "REMEDIATING",
+      "to_state": "VERIFYING",
+      "note": "waiting for stabilization, then rechecking health",
+      "data_json": null
+    },
+    {
+      "seq": 9,
+      "incident_id": "8205059f",
+      "ts": "2026-10-08T04:56:41.668848+00:00",
+      "from_state": "VERIFYING",
+      "to_state": "RESOLVED",
+      "note": "1 pod(s) ready",
+      "data_json": null
+    }
+  ],
+  "observations": [
+    {
+      "uid": "8b3f02fe-5ae2-45ff-8649-1962056ac949",
+      "namespace": "demo",
+      "name": "demo-service-54f959cf64-65llm",
+      "phase": "Running",
+      "ready": true,
+      "restart_count": 1,
+      "waiting_reason": null,
+      "last_terminated_reason": null,
+      "last_terminated_exit_code": null,
+      "observed_at": "2026-10-08T04:55:23.612106+00:00",
+      "labels": {
+        "app": "demo-service",
+        "pod-template-hash": "54f959cf64"
+      },
+      "memory_bytes": 23347200,
+      "cpu_millicores": 1,
+      "metrics_timestamp": "2026-10-08T04:55:10+00:00",
+      "memory_limit_bytes": 67108864
+    },
+    {
+      "uid": "8b3f02fe-5ae2-45ff-8649-1962056ac949",
+      "namespace": "demo",
+      "name": "demo-service-54f959cf64-65llm",
+      "phase": "Running",
+      "ready": true,
+      "restart_count": 1,
+      "waiting_reason": null,
+      "last_terminated_reason": null,
+      "last_terminated_exit_code": null,
+      "observed_at": "2026-10-08T04:55:38.742203+00:00",
+      "labels": {
+        "app": "demo-service",
+        "pod-template-hash": "54f959cf64"
+      },
+      "memory_bytes": 23351296,
+      "cpu_millicores": 2,
+      "metrics_timestamp": "2026-10-08T04:55:25+00:00",
+      "memory_limit_bytes": 67108864
+    },
+    {
+      "uid": "8b3f02fe-5ae2-45ff-8649-1962056ac949",
+      "namespace": "demo",
+      "name": "demo-service-54f959cf64-65llm",
+      "phase": "Running",
+      "ready": true,
+      "restart_count": 1,
+      "waiting_reason": null,
+      "last_terminated_reason": null,
+      "last_terminated_exit_code": null,
+      "observed_at": "2026-10-08T04:55:54.007604+00:00",
+      "labels": {
+        "app": "demo-service",
+        "pod-template-hash": "54f959cf64"
+      },
+      "memory_bytes": 25473024,
+      "cpu_millicores": 24,
+      "metrics_timestamp": "2026-10-08T04:55:40+00:00",
+      "memory_limit_bytes": 67108864
+    },
+    {
+      "uid": "8b3f02fe-5ae2-45ff-8649-1962056ac949",
+      "namespace": "demo",
+      "name": "demo-service-54f959cf64-65llm",
+      "phase": "Running",
+      "ready": true,
+      "restart_count": 1,
+      "waiting_reason": null,
+      "last_terminated_reason": null,
+      "last_terminated_exit_code": null,
+      "observed_at": "2026-10-08T04:56:09.142441+00:00",
+      "labels": {
+        "app": "demo-service",
+        "pod-template-hash": "54f959cf64"
+      },
+      "memory_bytes": 28672000,
+      "cpu_millicores": 14,
+      "metrics_timestamp": "2026-10-08T04:55:55+00:00",
+      "memory_limit_bytes": 67108864
+    },
+    {
+      "uid": "8b3f02fe-5ae2-45ff-8649-1962056ac949",
+      "namespace": "demo",
+      "name": "demo-service-54f959cf64-65llm",
+      "phase": "Running",
+      "ready": true,
+      "restart_count": 1,
+      "waiting_reason": null,
+      "last_terminated_reason": null,
+      "last_terminated_exit_code": null,
+      "observed_at": "2026-10-08T04:56:24.293645+00:00",
+      "labels": {
+        "app": "demo-service",
+        "pod-template-hash": "54f959cf64"
+      },
+      "memory_bytes": 30752768,
+      "cpu_millicores": 18,
+      "metrics_timestamp": "2026-10-08T04:56:10+00:00",
+      "memory_limit_bytes": 67108864
+    },
+    {
+      "uid": "8b3f02fe-5ae2-45ff-8649-1962056ac949",
+      "namespace": "demo",
+      "name": "demo-service-54f959cf64-65llm",
+      "phase": "Running",
+      "ready": true,
+      "restart_count": 1,
+      "waiting_reason": null,
+      "last_terminated_reason": null,
+      "last_terminated_exit_code": null,
+      "observed_at": "2026-10-08T04:56:39.547124+00:00",
+      "labels": {
+        "app": "demo-service",
+        "pod-template-hash": "54f959cf64"
+      },
+      "memory_bytes": 30756864,
+      "cpu_millicores": 2,
+      "metrics_timestamp": "2026-10-08T04:56:25+00:00",
+      "memory_limit_bytes": 67108864
+    },
+    {
+      "uid": "8b3f02fe-5ae2-45ff-8649-1962056ac949",
+      "namespace": "demo",
+      "name": "demo-service-54f959cf64-65llm",
+      "phase": "Running",
+      "ready": true,
+      "restart_count": 1,
+      "waiting_reason": null,
+      "last_terminated_reason": null,
+      "last_terminated_exit_code": null,
+      "observed_at": "2026-10-08T04:56:51.668591+00:00",
+      "labels": {
+        "app": "demo-service",
+        "pod-template-hash": "54f959cf64"
+      },
+      "memory_bytes": 30756864,
+      "cpu_millicores": 2,
+      "metrics_timestamp": "2026-10-08T04:56:40+00:00",
+      "memory_limit_bytes": 67108864
+    },
+    {
+      "uid": "1e5a305d-2724-4986-b9da-16f872a1ca8b",
+      "namespace": "demo",
+      "name": "demo-service-54f959cf64-8mqkh",
+      "phase": "Running",
+      "ready": true,
+      "restart_count": 0,
+      "waiting_reason": null,
+      "last_terminated_reason": null,
+      "last_terminated_exit_code": null,
+      "observed_at": "2026-10-08T04:57:09.846505+00:00",
+      "labels": {
+        "app": "demo-service",
+        "pod-template-hash": "54f959cf64"
+      },
+      "memory_bytes": 23076864,
+      "cpu_millicores": 6,
+      "metrics_timestamp": "2026-10-08T04:56:39+00:00",
+      "memory_limit_bytes": 67108864
+    },
+    {
+      "uid": "1e5a305d-2724-4986-b9da-16f872a1ca8b",
+      "namespace": "demo",
+      "name": "demo-service-54f959cf64-8mqkh",
+      "phase": "Running",
+      "ready": true,
+      "restart_count": 0,
+      "waiting_reason": null,
+      "last_terminated_reason": null,
+      "last_terminated_exit_code": null,
+      "observed_at": "2026-10-08T04:57:25.008102+00:00",
+      "labels": {
+        "app": "demo-service",
+        "pod-template-hash": "54f959cf64"
+      },
+      "memory_bytes": 23105536,
+      "cpu_millicores": 3,
+      "metrics_timestamp": "2026-10-08T04:56:57+00:00",
+      "memory_limit_bytes": 67108864
+    },
+    {
+      "uid": "1e5a305d-2724-4986-b9da-16f872a1ca8b",
+      "namespace": "demo",
+      "name": "demo-service-54f959cf64-8mqkh",
+      "phase": "Running",
+      "ready": true,
+      "restart_count": 0,
+      "waiting_reason": null,
+      "last_terminated_reason": null,
+      "last_terminated_exit_code": null,
+      "observed_at": "2026-10-08T04:57:40.141686+00:00",
+      "labels": {
+        "app": "demo-service",
+        "pod-template-hash": "54f959cf64"
+      },
+      "memory_bytes": 23113728,
+      "cpu_millicores": 1,
+      "metrics_timestamp": "2026-10-08T04:57:15+00:00",
+      "memory_limit_bytes": 67108864
+    },
+    {
+      "uid": "1e5a305d-2724-4986-b9da-16f872a1ca8b",
+      "namespace": "demo",
+      "name": "demo-service-54f959cf64-8mqkh",
+      "phase": "Running",
+      "ready": true,
+      "restart_count": 0,
+      "waiting_reason": null,
+      "last_terminated_reason": null,
+      "last_terminated_exit_code": null,
+      "observed_at": "2026-10-08T04:57:43.161222+00:00",
+      "labels": {
+        "app": "demo-service",
+        "pod-template-hash": "54f959cf64"
+      },
+      "memory_bytes": 23126016,
+      "cpu_millicores": 1,
+      "metrics_timestamp": "2026-10-08T04:57:30+00:00",
+      "memory_limit_bytes": 67108864
+    }
+  ],
+  "diagnosis_provider": "fake (scripted); metrics, Kubernetes action, and verification are real"
+}
